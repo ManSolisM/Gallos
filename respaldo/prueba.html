@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="public/img/pajaro.png">
+  <title>Registro peleas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      padding: 20px;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container-fluid {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      margin-bottom: 30px;
+    }
+    .h2{
+      font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      color: #150b85;
+    }
+
+    .btn-group-custom {
+      display: flex;
+      flex-direction: row;   /* Alineación en fila horizontal */
+      gap: 0px;
+      margin: 0;             /* Eliminamos el margen que empuja */
+      flex-wrap: nowrap;     /* NO permitir salto de línea */
+      position: fixed;       /* Fijo en pantalla */
+      top: 0px;             /* Distancia desde arriba */
+      left: 0px;            /* Distancia desde la izquierda */
+      z-index: 1000;         /* Encima de otros elementos */
+      background: white;     /* Fondo blanco */
+      padding: 5px 5px;    /* Espaciado interno */
+      border-radius: 12px;   /* Bordes redondeados */
+      box-shadow: 0 0px 0px rgba(0,0,0,0.3); /* Sombra */
+      width: auto;
+    }
+
+    /* css buscador de peleas - fijo superior derecha */
+    .row.mb-3 {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 380px;
+      background: white;
+      padding: 12px 15px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      margin: 0 !important;
+    }
+    
+    .row.mb-3 .col-md-6 {
+      width: 100%;
+      max-width: 100%;
+      flex: 0 0 100%;
+      padding: 0;
+    }
+    
+    .row.mb-3 .col-md-6:last-child {
+      margin-top: 8px;
+    }
+    
+    .row.mb-3 .input-group {
+      margin-bottom: 5px;
+    }
+    
+    .row.mb-3 #resultado-busqueda {
+      margin: 0;
+      padding: 6px;
+      font-size: 13px;
+    }
+    
+    .row.mb-3 .text-muted {
+      font-size: 11px;
+    }
+
+    /* css calculadora */
+    .mini-calc {
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 5px rgba(0,0,0,0.3);
+      width: 280px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .mini-calc input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.95);
+      font-weight: 500;
+    }
+    .mini-calc .row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .mini-calc button {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      color: #09164e;
+      transition: all 0.3s ease;
+    }
+    .mini-calc button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 5px rgba(0,0,0,0.2);
+    }
+    .mini-calc button.secondary {
+      background: #f1f5f9;
+      color: #6b7280;
+    }
+    .mini-calc .result {
+      background: rgba(255,255,255,0.95);
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      font-weight: 600;
+      color: #09164e;
+    }
+    .mini-calc .error {
+      color: #fee;
+      font-size: 12px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    /*   termina css de calculadora */
+    
+    /* Estructura de tabla mejorada */
+    table {
+      text-align: center;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: 0 0 0px rgba(0,0,0,0.1);
+    }
+    
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    thead th {
+      padding: 15px 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Ancho fijo para columnas específicas */
+    th:first-child { width: 140px; }
+    th:nth-child(2) { width: 100px; }
+    th:last-child { width: 80px; }
+    
+    th:not(:first-child):not(:nth-child(2)):not(:last-child) {
+      width: 120px;
+      min-width: 120px;
+      max-width: 120px;
+    }
+    
+    td:not(:first-child):not(:nth-child(2)):not(:last-child) {
+      width: 120px;
+      min-width: 120px;
+      max-width: 120px;
+      padding: 8px 4px;
+    }
+    
+    td:first-child { width: 140px; }
+    td:nth-child(2) { width: 100px; }
+    td:last-child { width: 80px; }
+    
+    tbody tr {
+      background: white;
+      transition: all 0.3s ease;
+    }
+    
+    tbody tr:hover {
+      background: #f8f9fa;
+      transform: scale(1.01);
+      box-shadow: 0 4px 50px rgb(218, 216, 68);
+    }
+    
+    tfoot {
+      font-weight: bold;
+      background-color: #e3f2fd;
+    }
+    
+    .input-cell {
+      width: 100%;
+      max-width: 100px;
+      text-align: center;
+      border: 2px solid #e2e8f0;
+      background: white;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-cell:focus {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      outline: none;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+    
+    .ganador-select {
+      width: 100%;
+      max-width: 130px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 2px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+    
+    .ganador-select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .nombre-usuario {
+      width: 100%;
+      max-width: 110px;
+      text-align: center;
+      font-size: 11px;
+      color: #2d2d2d;
+      border: 1px solid #ddd;
+      background: transparent;
+      padding: 2px;
+      margin: 1px 0;
+      border-radius: 3px;
+    }
+    
+    .nombre-usuario:focus {
+      background: #e8f4fd;
+      border: 1px solid #0d6efd;
+      outline: none;
+    }
+    
+    .numero-talon {
+      width: 100%;
+      max-width: 110px;
+      text-align: center;
+      font-weight: bold;
+      color: #0d6efd;
+      border: 1px solid #ddd;
+      background: transparent;
+      padding: 2px;
+      margin: 1px 0;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    
+    .numero-talon:focus {
+      background: #cfe2ff;
+      border: 1px solid #0d6efd;
+      outline: none;
+    }
+    
+    .btn-group-custom {
+      display: flex;
+      gap: 12px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+    
+    .btn-group-custom .btn {
+      padding: 12px 24px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    
+    .btn-group-custom .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      color: white;
+    }
+    
+    .btn-info {
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+      color: white;
+    }
+    
+    .btn-warning {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      color: white;
+    }
+    
+    .porcentaje-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 25px 0;
+      border: 2px solid #dee2e6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .porcentaje-section h5 {
+      color: #495057;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+    
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      width: 100%;
+    }
+    
+    .delete-btn:hover {
+      background: #f8d7da;
+    }
+    
+    .delete-col-btn {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 3px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      width: 100%;
+    }
+    
+    .delete-col-btn:hover {
+      background: #f8d7da;
+    }
+    
+    .total-row {
+      background-color: #fff3cd !important;
+    }
+    .descuento-row {
+      background-color: #d4edda !important;
+    }
+    .resultado-row {
+      background-color: #cce5ff !important;
+    }
+    .fila-encontrada {
+      background-color: #fff3cd !important;
+      border: 2px solid #ffc107 !important;
+      animation: highlight 2s ease-in-out;
+    }
+    
+    @keyframes highlight {
+      0% { background-color: #fff3cd; }
+      50% { background-color: #ffeaa7; }
+      100% { background-color: #fff3cd; }
+    }
+    
+    .fila-oculta {
+      display: none;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    th {
+      position: relative;
+      vertical-align: top;
+      padding: 8px 4px;
+    }
+    
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      width: 100%;
+    }
+    
+    tfoot td {
+      padding: 6px 4px;
+      vertical-align: middle;
+    }
+    
+    .prestamo-input {
+      width: 100%;
+      max-width: 90px;
+      text-align: center;
+      font-size: 11px;
+      padding: 3px;
+      margin: 2px 0;
+    }
+    
+    .prestamo-btn {
+      font-size: 9px;
+      padding: 1px 3px;
+      width: 100%;
+      max-width: 90px;
+    }
+    
+    .historial-container {
+      max-height: 100px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 4px;
+      width: 100%;
+      max-width: 180px;
+      font-size: 10px;
+      background: white;
+      border-radius: 3px;
+      margin: 0 auto;
+    }
+    
+    .label-usuario {
+      font-size: 11px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* Indicador de posición */
+.indicador-posicion {
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  width: 200px;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #667eea;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <br></br>
+    <br></br>
+    
+    <div class="h2">
+    <h2 class="mb-4 text-center" ><img src="public/img/pajaro.png" alt="Gallo" style="width: 50px; height: auto; border-radius: 12px;"> Registro de Peleas</h2>
+    </div>
+    
+    <div class="evento-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #64b5f6; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+      <h5 style="color: #1565c0; font-weight: 700; margin-bottom: 15px;">🎯 Información del Evento</h5>
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <label class="form-label" style="font-weight: 600; color: #1976d2;">Nombre del Evento:</label>
+          <input type="text" id="nombre-evento" class="form-control" placeholder="Ej: Torneo de Gallos Cuernavaca" style="font-size: 16px; padding: 10px; border: 2px solid #64b5f6; border-radius: 8px;">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" style="font-weight: 600; color: #1976d2;">Fecha del Evento:</label>
+          <input type="text" id="fecha-evento" class="form-control" readonly style="font-size: 16px; padding: 10px; background: #f5f5f5; border: 2px solid #64b5f6; border-radius: 8px; font-weight: 600; color: #1565c0;">
+        </div>
+      </div>
+    </div>
+    
+    <div class="btn-group-custom">
+      <button class="btn btn-success" onclick="exportarExcel()">📥 Exportar a Excel</button>
+      <button class="btn btn-primary" onclick="agregarFila()">➕ Agregar Pelea</button>
+      <button class="btn btn-info" onclick="agregarColumna()">➕ Agregar Corredor</button>
+      <button class="btn btn-warning" onclick="resetearTabla()">🔄 Resetear Programa</button>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text">🔍</span>
+          <input type="number" id="buscador-pelea" class="form-control" placeholder="Buscar por número de pelea..." onkeyup="buscarPelea()" min="1">
+          <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">Limpiar</button>
+        </div>
+        <small class="text-muted">Ingresa el número de pelea que quieres encontrar</small>
+      </div>
+      <div class="col-md-6">
+        <div id="resultado-busqueda" class="alert alert-info" style="display: none; margin: 0; padding: 8px;">
+          <span id="mensaje-busqueda"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="porcentaje-section">
+      <h5>⚙️ Configuración de Porcentajes</h5>
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <label class="form-label">Porcentaje a recibir de las peleas:</label>
+          <input type="number" id="porcentaje-descuento" value="10" min="0" max="100" class="form-control" style="width: 100px; display: inline-block;" onchange="recalcular()"> %
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Distribución:</label>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(70, 30)">70-30%</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(60, 40)">60-40%</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(50, 50)">50-50%</button>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-12">
+          <label class="form-label">O personalizar:</label>
+          <input type="number" id="porcentaje-usuario" value="50" min="0" max="100" class="form-control" style="width: 80px; display: inline-block;" onchange="actualizarDistribucion()"> % Corredor
+          <span class="mx-2">-</span>
+          <input type="number" id="porcentaje-casa" value="50" min="0" max="100" class="form-control" style="width: 80px; display: inline-block;" onchange="actualizarDistribucion()"> % Empresa
+          <button class="btn btn-sm btn-success ms-2" onclick="aplicarDistribucionPersonalizada()">Aplicar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table id="tabla" class="table table-bordered">
+        <thead id="tabla-head">
+          <tr>
+            <th>
+              <div class="header-content">
+                <strong style="color: rgb(255, 215, 0);">🏆 Ganador</strong>
+                <small style="color: rgba(0, 0, 0, 0.8);">Resultado</small>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <strong>Número</strong>
+                <small>de pelea</small>
+              </div>
+            </th>
+            <th id="col-1">
+              <div class="header-content">
+                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="ID">
+                <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">🗑️</button>
+              </div>
+            </th>
+            <th id="col-2">
+              <div class="header-content">
+                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="ID">
+                <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">🗑️</button>
+              </div>
+            </th>
+            <th id="col-3">
+              <div class="header-content">
+                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="ID">
+                <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">🗑️</button>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <strong>Eliminar - 🗑️</strong>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+        <tfoot id="tabla-foot">
+          <tr class="descuento-row">
+            <td><strong>-</strong></td>
+            <td><strong> (<span id="porcentaje-mostrar">10</span>%)</strong></td>
+            <td id="menos1"><strong>0</strong></td>
+            <td id="menos2"><strong>0</strong></td>
+            <td id="menos3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr class="resultado-row">
+            <td><strong>-</strong></td>
+            <td><strong>Para Corredor (<span id="porcentaje-usuario-mostrar">70</span>%)</strong></td>
+            <td id="resultado-usuario1"><strong>0</strong></td>
+            <td id="resultado-usuario2"><strong>0</strong></td>
+            <td id="resultado-usuario3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr class="resultado-row">
+            <td><strong>-</strong></td>
+            <td><strong>Para Empresa (<span id="porcentaje-casa-mostrar">30</span>%)</strong></td>
+            <td id="resultado-casa1"><strong>0</strong></td>
+            <td id="resultado-casa2"><strong>0</strong></td>
+            <td id="resultado-casa3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr style="background-color: #ffe6e6 !important;">
+            <td><strong>💸</strong></td>
+            <td><strong>Préstamos del corredor</strong></td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario1" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Préstamo o Descuento</button>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario2" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Préstamo o Descuento</button>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario3" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Préstamo o Descuento </button>
+              </div>
+            </td>
+            <td></td>
+          </tr>
+          <tr style="background-color: #e8f5e8 !important;">
+            <td><strong>💰</strong></td>
+            <td><strong>Ganancias Adicionales Empresa</strong></td>
+            <td colspan="4" style="text-align: center;">
+              <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                <input type="number" id="ganancia-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
+                <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">+ Ganancia Empresa</button>
+              </div>
+            </td>
+          </tr>
+          <tr style="background-color: #f0f8ff !important; border-top: 2px solid #0066cc;">
+            <td><strong>🏛️</strong></td>
+            <td><strong>TOTAL GANANCIAS EMPRESA</strong></td>
+            <td id="total-empresa-individual1" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-individual2" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-individual3" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-consolidado" style="font-size: 18px; color: #0066cc; border-left: 3px solid #0066cc;"><strong>TOTAL: 0</strong></td>
+          </tr>
+          <tr style="background-color: #f0f8f0 !important; border-top: 2px solid #28a745;">
+            <td><strong>💰</strong></td>
+            <td><strong>TOTAL FINAL PARA CORREDOR</strong></td>
+            <td id="total-final-usuario1" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
+            <td id="total-final-usuario2" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
+            <td id="total-final-usuario3" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr style="background-color: #fff3e0 !important;">
+            <td colspan="6">
+              <div style="padding: 10px; text-align: center;">
+                <strong>📋 Historial de Préstamos:</strong><br>
+                <div id="contenedor-historiales" style="display: flex; justify-content: space-around; margin-top: 5px; flex-wrap: wrap; gap: 10px;">
+                  <div>
+                    <span class="label-usuario" id="label-usuario1">corredor1:</span>
+                    <div id="historial-prestamos1" class="historial-container">
+                      <em>No hay préstamos registrados</em>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="label-usuario" id="label-usuario2">corredor2:</span>
+                    <div id="historial-prestamos2" class="historial-container">
+                      <em>No hay préstamos registrados</em>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="label-usuario" id="label-usuario3">corredor3:</span>
+                    <div id="historial-prestamos3" class="historial-container">
+                      <em>No hay préstamos registrados</em>
+                    </div>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid #ddd; margin-top: 10px; padding-top: 10px;">
+                  <strong>💰 Ganancias de la Empresa:</strong><br>
+                  <div style="display: flex; justify-content: center; margin-top: 5px;">
+                    <div style="width: 300px;">
+                      <div id="historial-ganancias-empresa" class="historial-container" style="max-width: none; width: 100%;">
+                        <em>Sin ganancias registradas</em>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="mini-calc">
+    <input id="expr" type="text" placeholder="operacion a calcular" autocomplete="off" />
+    <div class="row">
+      <button id="calcBtn">Calcular</button>
+      <button id="clearBtn" class="secondary">Borrar</button>
+    </div>
+    <div id="error" class="error"></div>
+    <div id="result" class="result">Resultado es: —</div>
+    <!-- Indicador de posición actual -->
+    <div id="indicador-posicion" class="indicador-posicion" style="display: none;">
+      <div style="font-size: 14px; font-weight: bold; color: #667eea; margin-bottom: 5px;">
+        Posición Actual
+      </div>
+    <div id="info-pelea" style="font-size: 13px; margin-bottom: 3px;">
+    Pelea: <span id="num-pelea-actual" style="font-weight: bold; color: #28a745;">-</span>
+    </div>
+      <div id="info-corredor" style="font-size: 13px;">
+          Corredor: <span id="nombre-corredor-actual" style="font-weight: bold; color: #0d6efd;">-</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let filaCounter = 0;
+    let columnaCounter = 3;
+    let columnasData = [
+      { numeroTalon: 'Talón', idTalon: '1', nombreUsuario: 'corredor1' },
+      { numeroTalon: 'Talón', idTalon: '2', nombreUsuario: 'corredor2' },
+      { numeroTalon: 'Talón', idTalon: '3', nombreUsuario: 'corredor3' }
+    ];
+    let historialesPrestamos = [[], [], []];
+    let historialesGanancias = [[], [], []];
+    let historialGananciasEmpresa = [];
+
+    function inicializarTabla() {
+      const body = document.getElementById("tabla-body");
+      body.innerHTML = '';
+      
+      for (let i = 1; i <= 20; i++) {
+        agregarFilaHtml(i);
+      }
+      filaCounter = 20;
+      
+      agregarEventListeners();
+      recalcular();
+      recalcularConPrestamos();
+      recalcularConGanancias();
+    }
+
+    function agregarFilaHtml(numero) {
+      const body = document.getElementById("tabla-body");
+      let fila = `<tr id="fila-${numero}">
+                    <td>
+                      <select class="form-control ganador-select" data-fila="${numero}">
+                        <option value="">marca color</option>
+                        <option value="verde" style="color: #28a745;">🟢 VERDE</option>
+                        <option value="rojo" style="color: #dc3545;">🔴 ROJO</option>
+                        <option value="tablas" style="color: #6c757d;">⚪ TABLAS</option>
+                      </select>
+                    </td>
+                    <td><strong>${numero}</strong></td>`;
+      
+      for (let j = 1; j <= columnaCounter; j++) {
+        fila += `<td><input type="number" value="00" class="form-control input-cell valor" data-col="${j}" data-fila="${numero}"></td>`;
+      }
+      
+      fila += `<td><button class="delete-btn" onclick="eliminarFila(${numero})" title="Eliminar fila">🗑️</button></td></tr>`;
+      body.innerHTML += fila;
+    }
+
+    function agregarFila() {
+      filaCounter++;
+      agregarFilaHtml(filaCounter);
+      agregarEventListeners();
+      recalcular();
+      recalcularConPrestamos();
+      recalcularConGanancias();
+    }
+
+    function eliminarFila(numero) {
+      if (confirm('¿Estás seguro de eliminar esta fila?')) {
+        const fila = document.getElementById(`fila-${numero}`);
+        if (fila) {
+          fila.remove();
+          recalcular();
+          recalcularConPrestamos();
+          recalcularConGanancias();
+        }
+      }
+    }
+
+    function agregarColumna() {
+      columnaCounter++;
+      
+      columnasData.push({
+        numeroTalon: 'Talón',
+        idTalon: String(columnaCounter),
+        nombreUsuario: 'corredor' + columnaCounter
+      });
+      historialesPrestamos.push([]);
+      historialesGanancias.push([]);
+      
+      const thead = document.getElementById("tabla-head").querySelector("tr");
+      const thAcciones = thead.lastElementChild;
+      const newTh = document.createElement("th");
+      newTh.id = `col-${columnaCounter}`;
+      newTh.innerHTML = `
+        <div class="header-content">
+          <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Nombre Talón">
+          <input type="text" value="${columnaCounter}" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="ID">
+          <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
+          <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">🗑️</button>
+        </div>
+      `;
+      thead.insertBefore(newTh, thAcciones);
+      
+      const rows = document.querySelectorAll("#tabla-body tr");
+      rows.forEach(row => {
+        const tdAcciones = row.lastElementChild;
+        const newTd = document.createElement("td");
+        const numeroFila = row.id.split('-')[1];
+        newTd.innerHTML = `<input type="number" value="00" class="form-control input-cell valor" data-col="${columnaCounter}" data-fila="${numeroFila}">`;
+        row.insertBefore(newTd, tdAcciones);
+      });
+      
+      const tfoot = document.getElementById("tabla-foot");
+      const rows2 = tfoot.querySelectorAll("tr");
+      
+      rows2[0].insertBefore(crearCelda(`menos${columnaCounter}`, "0"), rows2[0].lastElementChild);
+      rows2[1].insertBefore(crearCelda(`resultado-usuario${columnaCounter}`, "0"), rows2[1].lastElementChild);
+      rows2[2].insertBefore(crearCelda(`resultado-casa${columnaCounter}`, "0"), rows2[2].lastElementChild);
+      
+      const prestamoCelda = document.createElement("td");
+      prestamoCelda.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+          <input type="number" id="prestamo-usuario${columnaCounter}" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+          <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">+ Préstamo o Descuento</button>
+        </div>
+      `;
+      rows2[3].insertBefore(prestamoCelda, rows2[3].lastElementChild);
+      
+      const totalEmpresaCelda = document.createElement("td");
+      totalEmpresaCelda.id = `total-empresa-individual${columnaCounter}`;
+      totalEmpresaCelda.style.fontSize = "14px";
+      totalEmpresaCelda.style.color = "#0066cc";
+      totalEmpresaCelda.innerHTML = "<strong>0</strong>";
+      rows2[5].insertBefore(totalEmpresaCelda, rows2[5].lastElementChild);
+      
+      const totalFinalCelda = document.createElement("td");
+      totalFinalCelda.id = `total-final-usuario${columnaCounter}`;
+      totalFinalCelda.style.fontSize = "16px";
+      totalFinalCelda.style.color = "#28a745";
+      totalFinalCelda.innerHTML = "<strong>0</strong>";
+      rows2[6].insertBefore(totalFinalCelda, rows2[6].lastElementChild);
+      
+      const historialContainer = document.getElementById("contenedor-historiales");
+      const nuevoHistorial = document.createElement("div");
+      nuevoHistorial.innerHTML = `
+        <span class="label-usuario" id="label-usuario${columnaCounter}">corredor${columnaCounter}:</span>
+        <div id="historial-prestamos${columnaCounter}" class="historial-container">
+          <em>No hay préstamos registrados</em>
+        </div>
+      `;
+      historialContainer.appendChild(nuevoHistorial);
+      
+      agregarEventListeners();
+      recalcular();
+      recalcularConPrestamos();
+      recalcularConGanancias();
+    }
+
+    function crearCelda(id, texto) {
+      const td = document.createElement("td");
+      td.id = id;
+      td.innerHTML = `<strong>${texto}</strong>`;
+      return td;
+    }
+
+    function eliminarColumna(colNum) {
+      if (columnaCounter <= 1) {
+        alert('Debes mantener al menos una columna.');
+        return;
+      }
+      
+      if (confirm('¿Estás seguro de eliminar esta columna?')) {
+        const th = document.getElementById(`col-${colNum}`);
+        if (th) th.remove();
+        
+        document.querySelectorAll(`input[data-col="${colNum}"]`).forEach(input => {
+          input.closest('td').remove();
+        });
+        
+        const elementos = [
+          `menos${colNum}`,
+          `resultado-usuario${colNum}`,
+          `resultado-casa${colNum}`,
+          `total-final-usuario${colNum}`,
+          `total-empresa-individual${colNum}`
+        ];
+        
+        elementos.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.remove();
+        });
+        
+        const prestamoInput = document.getElementById(`prestamo-usuario${colNum}`);
+        if (prestamoInput) prestamoInput.closest('td').remove();
+
+        const historialDiv = document.getElementById(`historial-prestamos${colNum}`);
+        if (historialDiv) historialDiv.closest('div').remove();
+        
+        const index = columnasData.findIndex((col, idx) => idx + 1 === colNum);
+        if (index !== -1) {
+          columnasData.splice(index, 1);
+          historialesPrestamos.splice(index, 1);
+        }
+        
+        recalcular();
+        recalcularConPrestamos();
+        recalcularConGanancias();
+      }
+    }
+
+    function agregarEventListeners() {
+  document.querySelectorAll(".valor").forEach(input => {
+    input.removeEventListener("input", recalcular);
+    input.addEventListener("input", recalcular);
+  });
+  agregarEventListenersPosicion(); // Agregar esta línea
+}
+
+    function recalcular() {
+      const porcentajeDescuento = Number(document.getElementById("porcentaje-descuento").value) || 0;
+      const porcentajeUsuario = Number(document.getElementById("porcentaje-usuario").value) || 70;
+      const porcentajeCasa = Number(document.getElementById("porcentaje-casa").value) || 30;
+      
+      document.getElementById("porcentaje-mostrar").innerText = porcentajeDescuento;
+      document.getElementById("porcentaje-usuario-mostrar").innerText = porcentajeUsuario;
+      document.getElementById("porcentaje-casa-mostrar").innerText = porcentajeCasa;
+      
+      for (let j = 1; j <= columnaCounter; j++) {
+        let suma = 0;
+        document.querySelectorAll(`input[data-col="${j}"]`).forEach(input => {
+          suma += Number(input.value) || 0;
+        });
+        
+        const descuento = suma * (porcentajeDescuento / 100);
+        const paraUsuario = descuento * (porcentajeUsuario / 100);
+        const paraCasa = descuento * (porcentajeCasa / 100);
+        
+        const menosEl = document.getElementById("menos" + j);
+        const usuarioEl = document.getElementById("resultado-usuario" + j);
+        const casaEl = document.getElementById("resultado-casa" + j);
+        
+        if (menosEl) menosEl.innerText = descuento.toFixed(0);
+        if (usuarioEl) usuarioEl.innerText = paraUsuario.toFixed(0);
+        if (casaEl) casaEl.innerText = paraCasa.toFixed(0);
+      }
+      
+      recalcularConPrestamos();
+      recalcularConGanancias();
+    }
+
+    function agregarGananciaEmpresa() {
+      const gananciaInput = document.getElementById(`ganancia-empresa-total`);
+      const cantidadGanancia = Number(gananciaInput.value);
+      
+      if (cantidadGanancia > 0) {
+        const descripcion = prompt(`Describe la ganancia adicional de ${cantidadGanancia} para la Empresa:`, 'Ganancia adicional');
+        
+        if (descripcion !== null) {
+          const fecha = new Date().toLocaleDateString();
+          const ganancia = {
+            cantidad: cantidadGanancia,
+            descripcion: descripcion || 'Sin descripción',
+            fecha: fecha
+          };
+          
+          historialGananciasEmpresa.push(ganancia);
+          gananciaInput.value = 0;
+          actualizarHistorialGananciasEmpresa();
+          recalcularConGanancias();
+        }
+      } else {
+        alert('Por favor, ingresa una cantidad mayor a 0 para la ganancia.');
+      }
+    }
+
+    function actualizarHistorialGananciasEmpresa() {
+      const historialDiv = document.getElementById(`historial-ganancias-empresa`);
+      
+      if (historialGananciasEmpresa.length === 0) {
+        historialDiv.innerHTML = '<em>No hay ganancias registradas</em>';
+      } else {
+        let html = '';
+        historialGananciasEmpresa.forEach((ganancia, index) => {
+          html += `
+            <div style="border-bottom: 1px solid #eee; padding: 3px 0; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>${ganancia.cantidad}</strong><br>
+                <small>${ganancia.descripcion}</small><br>
+                <tiny style="color: #666;">${ganancia.fecha}</tiny>
+              </div>
+              <button onclick="eliminarGananciaEmpresa(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar ganancia">✕</button>
+            </div>
+          `;
+        });
+        historialDiv.innerHTML = html;
+      }
+    }
+
+    function eliminarGananciaEmpresa(index) {
+      if (confirm('¿Estás seguro de eliminar esta ganancia?')) {
+        historialGananciasEmpresa.splice(index, 1);
+        actualizarHistorialGananciasEmpresa();
+        recalcularConGanancias();
+      }
+    }
+
+    function recalcularConGanancias() {
+      let totalEmpresaConsolidado = 0;
+      
+      const gananciasTotales = historialGananciasEmpresa.reduce((sum, ganancia) => sum + ganancia.cantidad, 0);
+      
+      for (let j = 1; j <= columnaCounter; j++) {
+        const resultadoCasaEl = document.getElementById("resultado-casa" + j);
+        const totalEmpresaIndividualEl = document.getElementById("total-empresa-individual" + j);
+        
+        if (resultadoCasaEl && totalEmpresaIndividualEl) {
+          const resultadoCasa = Number(resultadoCasaEl.innerText) || 0;
+          totalEmpresaConsolidado += resultadoCasa;
+          totalEmpresaIndividualEl.innerText = resultadoCasa.toFixed(0);
+        }
+      }
+      
+      const totalFinal = totalEmpresaConsolidado + gananciasTotales;
+      
+      const totalConsolidadoEl = document.getElementById("total-empresa-consolidado");
+      if (totalConsolidadoEl) {
+        totalConsolidadoEl.innerHTML = `<strong>TOTAL: ${totalFinal.toFixed(0)}</strong>`;
+      }
+    }
+
+    function agregarPrestamo(usuario) {
+      const prestamoInput = document.getElementById(`prestamo-usuario${usuario}`);
+      const cantidadPrestamo = Number(prestamoInput.value);
+      
+      if (cantidadPrestamo > 0) {
+        const descripcion = prompt(`Describe el descuento o prestamo de ${cantidadPrestamo} para ${columnasData[usuario-1]?.nombreUsuario || 'usuario' + usuario}:`, 'Préstamo general');
+        
+        if (descripcion !== null) {
+          const fecha = new Date().toLocaleDateString();
+          const prestamo = {
+            cantidad: cantidadPrestamo,
+            descripcion: descripcion || 'Sin descripción',
+            fecha: fecha
+          };
+          
+          historialesPrestamos[usuario - 1].push(prestamo);
+          prestamoInput.value = 0;
+          actualizarHistorialPrestamos(usuario);
+          recalcularConPrestamos();
+        }
+      } else {
+        alert('Por favor, ingresa una cantidad mayor a 0 para el préstamo.');
+      }
+    }
+
+    function actualizarHistorialPrestamos(usuario) {
+      const historialDiv = document.getElementById(`historial-prestamos${usuario}`);
+      const prestamos = historialesPrestamos[usuario - 1];
+      
+      if (prestamos.length === 0) {
+        historialDiv.innerHTML = '<em>No hay préstamos registrados</em>';
+      } else {
+        let html = '';
+        prestamos.forEach((prestamo, index) => {
+          html += `
+            <div style="border-bottom: 1px solid #eee; padding: 2px 0; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong>${prestamo.cantidad}</strong><br>
+                <small>${prestamo.descripcion}</small><br>
+                <tiny style="color: #666;">${prestamo.fecha}</tiny>
+              </div>
+              <button onclick="eliminarPrestamo(${usuario}, ${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar préstamo">✕</button>
+            </div>
+          `;
+        });
+        historialDiv.innerHTML = html;
+      }
+    }
+
+    function eliminarPrestamo(usuario, index) {
+      if (confirm('¿Estás seguro de eliminar este préstamo?')) {
+        historialesPrestamos[usuario - 1].splice(index, 1);
+        actualizarHistorialPrestamos(usuario);
+        recalcularConPrestamos();
+      }
+    }
+
+    function recalcularConPrestamos() {
+      for (let j = 1; j <= columnaCounter; j++) {
+        const resultadoUsuarioEl = document.getElementById("resultado-usuario" + j);
+        const totalFinalEl = document.getElementById("total-final-usuario" + j);
+        
+        if (resultadoUsuarioEl && totalFinalEl) {
+          const resultadoUsuario = Number(resultadoUsuarioEl.innerText) || 0;
+          
+          let totalPrestamos = 0;
+          if (historialesPrestamos[j - 1]) {
+            totalPrestamos = historialesPrestamos[j - 1].reduce((sum, prestamo) => sum + prestamo.cantidad, 0);
+          }
+          
+          const totalFinal = resultadoUsuario - totalPrestamos;
+          totalFinalEl.innerText = totalFinal.toFixed(0);
+          
+          if (totalFinal < 0) {
+            totalFinalEl.style.color = '#dc3545';
+          } else {
+            totalFinalEl.style.color = '#28a745';
+          }
+        }
+      }
+    }
+
+    function aplicarDistribucion(usuario, casa) {
+      document.getElementById("porcentaje-usuario").value = usuario;
+      document.getElementById("porcentaje-casa").value = casa;
+      recalcular();
+    }
+
+    function actualizarDistribucion() {
+      const usuario = Number(document.getElementById("porcentaje-usuario").value);
+      const casa = 100 - usuario;
+      document.getElementById("porcentaje-casa").value = casa;
+    }
+
+    function aplicarDistribucionPersonalizada() {
+      recalcular();
+    }
+
+    function resetearTabla() {
+      if (confirm('¿Estás seguro de resetear toda la tabla? Esto borrará todos los datos.')) {
+        location.reload();
+      }
+    }
+
+    function buscarPelea() {
+      const numeroBuscar = document.getElementById("buscador-pelea").value;
+      const resultadoBusqueda = document.getElementById("resultado-busqueda");
+      const mensajeBusqueda = document.getElementById("mensaje-busqueda");
+      const todasLasFilas = document.querySelectorAll("#tabla-body tr");
+      
+      todasLasFilas.forEach(fila => {
+        fila.classList.remove("fila-encontrada", "fila-oculta");
+      });
+      
+      if (!numeroBuscar) {
+        resultadoBusqueda.style.display = "none";
+        return;
+      }
+      
+      let filaEncontrada = false;
+      
+      todasLasFilas.forEach(fila => {
+        const numeroFila = fila.querySelector("td:nth-child(2)").textContent.trim();
+        
+        if (numeroFila === numeroBuscar) {
+          fila.classList.add("fila-encontrada");
+          filaEncontrada = true;
+          
+          setTimeout(() => {
+            fila.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }, 100);
+          
+          resultadoBusqueda.className = "alert alert-success";
+          mensajeBusqueda.innerHTML = `✅ Pelea #${numeroBuscar} encontrada`;
+        } else {
+          fila.classList.add("fila-oculta");
+        }
+      });
+      
+      if (!filaEncontrada) {
+        resultadoBusqueda.className = "alert alert-warning";
+        mensajeBusqueda.innerHTML = `⚠️ No se encontró la pelea #${numeroBuscar}`;
+        
+        todasLasFilas.forEach(fila => {
+          fila.classList.remove("fila-oculta");
+        });
+      }
+      
+      resultadoBusqueda.style.display = "block";
+    }
+    
+    function limpiarBusqueda() {
+      document.getElementById("buscador-pelea").value = "";
+      document.getElementById("resultado-busqueda").style.display = "none";
+      
+      document.querySelectorAll("#tabla-body tr").forEach(fila => {
+        fila.classList.remove("fila-encontrada", "fila-oculta");
+      });
+    }
+
+    function exportarExcel() {
+      const datos = [];
+      
+      // Agregar información del evento al inicio
+      const nombreEvento = document.getElementById('nombre-evento').value || 'Evento sin nombre';
+      const fechaEvento = document.getElementById('fecha-evento').value;
+      
+      datos.push(['INFORMACIÓN DEL EVENTO']);
+      datos.push(['Nombre del Evento:', nombreEvento]);
+      datos.push(['Fecha:', fechaEvento]);
+      datos.push([]);
+      datos.push([]);
+      
+      const encabezados = ['Ganador', 'Número de Pelea'];
+      for (let i = 0; i < columnaCounter; i++) {
+        const col = columnasData[i];
+        if (col) {
+          encabezados.push(`${col.nombreUsuario} (${col.numeroTalon} ${col.idTalon})`);
+        }
+      }
+      datos.push(encabezados);
+      
+      const filas = document.querySelectorAll("#tabla-body tr");
+      filas.forEach(fila => {
+        const filaDatos = [];
+        
+        const ganadorSelect = fila.querySelector(".ganador-select");
+        const ganadorValor = ganadorSelect.value || "Sin resultado";
+        filaDatos.push(ganadorValor.toUpperCase());
+        
+        const numeroPelea = fila.querySelector("td:nth-child(2)").textContent.trim();
+        filaDatos.push(numeroPelea);
+        
+        const inputs = fila.querySelectorAll(".valor");
+        inputs.forEach(input => {
+          filaDatos.push(Number(input.value) || 0);
+        });
+        
+        datos.push(filaDatos);
+      });
+      
+      datos.push([]);
+      
+      const filaDescuento = ['Descuento', `(${document.getElementById("porcentaje-descuento").value}%)`];
+      for (let j = 1; j <= columnaCounter; j++) {
+        const menosEl = document.getElementById("menos" + j);
+        filaDescuento.push(menosEl ? Number(menosEl.innerText) : 0);
+      }
+      datos.push(filaDescuento);
+      
+      const porcentajeUsuario = document.getElementById("porcentaje-usuario").value;
+      const filaUsuario = ['Para Corredor', `(${porcentajeUsuario}%)`];
+      for (let j = 1; j <= columnaCounter; j++) {
+        const usuarioEl = document.getElementById("resultado-usuario" + j);
+        filaUsuario.push(usuarioEl ? Number(usuarioEl.innerText) : 0);
+      }
+      datos.push(filaUsuario);
+      
+      const porcentajeCasa = document.getElementById("porcentaje-casa").value;
+      const filaCasa = ['Para Empresa', `(${porcentajeCasa}%)`];
+      for (let j = 1; j <= columnaCounter; j++) {
+        const casaEl = document.getElementById("resultado-casa" + j);
+        filaCasa.push(casaEl ? Number(casaEl.innerText) : 0);
+      }
+      datos.push(filaCasa);
+      
+      const filaPrestamos = ['Préstamos del corredor', ''];
+      for (let j = 1; j <= columnaCounter; j++) {
+        let totalPrestamos = 0;
+        if (historialesPrestamos[j - 1]) {
+          totalPrestamos = historialesPrestamos[j - 1].reduce((sum, p) => sum + p.cantidad, 0);
+        }
+        filaPrestamos.push(totalPrestamos);
+      }
+      datos.push(filaPrestamos);
+      
+      const gananciaEmpresaTotal = historialGananciasEmpresa.reduce((sum, g) => sum + g.cantidad, 0);
+      datos.push(['Ganancias Adicionales Empresa', gananciaEmpresaTotal]);
+      
+      const filaTotalEmpresa = ['TOTAL GANANCIAS EMPRESA', ''];
+      for (let j = 1; j <= columnaCounter; j++) {
+        const totalEl = document.getElementById("total-empresa-individual" + j);
+        filaTotalEmpresa.push(totalEl ? Number(totalEl.innerText) : 0);
+      }
+      const totalConsolidado = document.getElementById("total-empresa-consolidado").textContent.replace(' TOTAL :', '').trim();
+      filaTotalEmpresa.push(totalConsolidado);
+      datos.push(filaTotalEmpresa);
+      
+      const filaTotalFinal = ['TOTAL FINAL PARA CORREDOR', ''];
+      for (let j = 1; j <= columnaCounter; j++) {
+        const finalEl = document.getElementById("total-final-usuario" + j);
+        filaTotalFinal.push(finalEl ? Number(finalEl.innerText) : 0);
+      }
+      datos.push(filaTotalFinal);
+      
+      datos.push([]);
+      datos.push(['HISTORIAL DE PRÉSTAMOS']);
+      for (let j = 0; j < columnaCounter; j++) {
+        if (historialesPrestamos[j] && historialesPrestamos[j].length > 0) {
+          datos.push([`${columnasData[j]?.nombreUsuario || 'Corredor ' + (j+1)}:`]);
+          historialesPrestamos[j].forEach(p => {
+            datos.push(['', p.cantidad, p.descripcion, p.fecha]);
+          });
+        }
+      }
+      
+      if (historialGananciasEmpresa.length > 0) {
+        datos.push([]);
+        datos.push(['GANANCIAS DE LA EMPRESA']);
+        historialGananciasEmpresa.forEach(g => {
+          datos.push([g.cantidad, g.descripcion, g.fecha]);
+        });
+      }
+      
+      const ws = XLSX.utils.aoa_to_sheet(datos);
+      
+      const wscols = [
+        {wch: 30},
+        {wch: 25}
+      ];
+      for (let i = 0; i < columnaCounter; i++) {
+        wscols.push({wch: 20});
+      }
+      ws['!cols'] = wscols;
+      
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Peleas");
+      
+      const fecha = new Date().toISOString().split('T')[0];
+      const nombreArchivoEvento = nombreEvento.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      XLSX.writeFile(wb, `${nombreArchivoEvento}_${fecha}.xlsx`);
+      
+      alert('✅ Excel exportado correctamente con todos los datos!');
+    }
+
+    function actualizarNumeroTalon(columna, valor) {
+      if (columnasData[columna - 1]) {
+        columnasData[columna - 1].numeroTalon = valor;
+      }
+    }
+
+    function actualizarIdTalon(columna, valor) {
+      if (columnasData[columna - 1]) {
+        columnasData[columna - 1].idTalon = valor;
+      }
+    }
+
+    function actualizarNombreUsuario(columna, valor) {
+      if (columnasData[columna - 1]) {
+        columnasData[columna - 1].nombreUsuario = valor;
+      }
+      
+      const labelUsuario = document.getElementById(`label-usuario${columna}`);
+      if (labelUsuario) {
+        labelUsuario.textContent = valor + ':';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+  const fechaActual = new Date();
+  const opciones = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  };
+  document.getElementById('fecha-evento').value = fechaActual.toLocaleDateString('es-MX', opciones);
+  
+  inicializarTabla();
+  agregarEventListenersPosicion(); // Agregar esta línea
+  
+  document.getElementById('buscador-pelea').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      buscarPelea();
+    }
+  });
+});
+
+    const exprInput = document.getElementById('expr');
+    const calcBtn = document.getElementById('calcBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resultEl = document.getElementById('result');
+    const errorEl = document.getElementById('error');
+    const validRe = /^[0-9+\-*/().\s]+$/;
+
+    function mostrarError(msg) { errorEl.textContent = msg || ''; }
+    function mostrarResultado(val) { resultEl.textContent = 'Resultado es: ' + val; }
+
+    function parentesisBalanceados(s) {
+      let depth = 0;
+      for (const ch of s) {
+        if (ch === '(') depth++;
+        else if (ch === ')') { depth--; if (depth < 0) return false; }
+      }
+      return depth === 0;
+    }
+
+    function calcularExpresion() {
+      mostrarError('');
+      const raw = exprInput.value.trim();
+      if (!raw) return mostrarError('Escribe una expresión.');
+      if (!validRe.test(raw)) return mostrarError('Caracteres no permitidos.');
+      if (!parentesisBalanceados(raw)) return mostrarError('Paréntesis incorrectos.');
+
+      try {
+        const fn = new Function('return (' + raw + ')');
+        let value = fn();
+        if (typeof value !== 'number' || !isFinite(value)) return mostrarError('Resultado inválido.');
+        mostrarResultado(Number.isInteger(value) ? value : parseFloat(value.toFixed(12)));
+      } catch {
+        mostrarError('Error al calcular.');
+      }
+    }
+
+    calcBtn.addEventListener('click', calcularExpresion);
+    clearBtn.addEventListener('click', () => { exprInput.value = ''; mostrarError(''); mostrarResultado('—'); });
+    exprInput.addEventListener('keydown', e => { if (e.key === 'Enter') calcularExpresion(); });
+
+    // Función para mostrar la posición actual
+function mostrarPosicionActual(input) {
+  const numPelea = input.getAttribute('data-fila');
+  const numColumna = input.getAttribute('data-col');
+  
+  const indicador = document.getElementById('indicador-posicion');
+  const numPeleaEl = document.getElementById('num-pelea-actual');
+  const nombreCorredorEl = document.getElementById('nombre-corredor-actual');
+  
+  if (numPelea && numColumna) {
+    numPeleaEl.textContent = numPelea;
+    
+    const columnaData = columnasData[numColumna - 1];
+    if (columnaData) {
+      nombreCorredorEl.textContent = columnaData.nombreUsuario;
+    }
+    
+    indicador.style.display = 'block';
+  }
+}
+
+// Agregar event listeners a todos los inputs
+function agregarEventListenersPosicion() {
+  document.querySelectorAll('.valor').forEach(input => {
+    input.addEventListener('focus', function() {
+      mostrarPosicionActual(this);
+    });
+  });
+}
+  </script>
+</body>
+</html>
