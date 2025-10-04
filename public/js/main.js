@@ -126,7 +126,12 @@ function agregarColumna() {
   totalFinalCelda.id = `total-final-usuario${columnaCounter}`;
   totalFinalCelda.style.fontSize = "16px";
   totalFinalCelda.style.color = "#28a745";
-  totalFinalCelda.innerHTML = "<strong>0</strong>";
+  totalFinalCelda.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <small style="font-size: 10px; font-weight: normal; color: #666;">corredor${columnaCounter}</small>
+      <strong class="total-monto">0</strong>
+    </div>
+  `;
   rows2[7].insertBefore(totalFinalCelda, rows2[7].lastElementChild);
   
   agregarEventListeners();
@@ -195,6 +200,15 @@ function actualizarIdTalon(col, valor) {
 function actualizarNombreUsuario(col, valor) {
   if (columnasData[col - 1]) {
     columnasData[col - 1].nombreUsuario = valor;
+    
+    // Actualizar el nombre en la fila de totales
+    const totalFinalEl = document.getElementById(`total-final-usuario${col}`);
+    if (totalFinalEl) {
+      const smallTag = totalFinalEl.querySelector('small');
+      if (smallTag) {
+        smallTag.textContent = valor;
+      }
+    }
   }
 }
 
@@ -309,12 +323,26 @@ function recalcularConPrestamos() {
       }
       
       const totalFinal = resultadoUsuario - totalPrestamos;
-      totalFinalEl.innerText = totalFinal.toFixed(0);
       
-      if (totalFinal < 0) {
-        totalFinalEl.style.color = '#dc3545';
+      // Actualizar el monto dentro del strong con clase total-monto
+      const totalMontoEl = totalFinalEl.querySelector('.total-monto');
+      if (totalMontoEl) {
+        totalMontoEl.innerText = totalFinal.toFixed(0);
+        
+        if (totalFinal < 0) {
+          totalFinalEl.style.color = '#dc3545';
+        } else {
+          totalFinalEl.style.color = '#28a745';
+        }
       } else {
-        totalFinalEl.style.color = '#28a745';
+        // Fallback para formato antiguo
+        totalFinalEl.innerText = totalFinal.toFixed(0);
+        
+        if (totalFinal < 0) {
+          totalFinalEl.style.color = '#dc3545';
+        } else {
+          totalFinalEl.style.color = '#28a745';
+        }
       }
     }
   }
