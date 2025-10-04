@@ -1,718 +1,700 @@
-let filaCounter = 0;
-let columnaCounter = 3;
-let columnasData = [
-  { numeroTalon: 'Talon', idTalon: '1', nombreUsuario: 'corredor1' },
-  { numeroTalon: 'Talon', idTalon: '2', nombreUsuario: 'corredor2' },
-  { numeroTalon: 'Talon', idTalon: '3', nombreUsuario: 'corredor3' }
-];
-let historialesPrestamos = [[], [], []];
-let historialesDescuentosEmpresa = [];
-let historialGananciasEmpresa = [];
-
-function inicializarTabla() {
-  const body = document.getElementById("tabla-body");
-  body.innerHTML = '';
-  
-  for (let i = 1; i <= 20; i++) {
-    agregarFilaHtml(i);
-  }
-  filaCounter = 20;
-  
-  const hoy = new Date();
-  document.getElementById('fecha-evento').value = hoy.toLocaleDateString('es-MX');
-  
-  agregarEventListeners();
-  recalcular();
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro peleas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-function agregarFilaHtml(numero) {
-  const body = document.getElementById("tabla-body");
-  let fila = `<tr id="fila-${numero}">
-                <td>
-                  <select class="form-control ganador-select" data-fila="${numero}">
-                    <option value="">Color ganador</option>
-                    <option value="verde" style="color: #28a745;">VERDE</option>
-                    <option value="rojo" style="color: #dc3545;">ROJO</option>
-                    <option value="tablas" style="color: #6c757d;">TABLAS</option>
-                  </select>
-                </td>
-                <td><strong>${numero}</strong></td>`;
-  
-  for (let j = 1; j <= columnaCounter; j++) {
-    fila += `<td><input type="number" value="0" class="form-control input-cell valor" data-col="${j}" data-fila="${numero}"></td>`;
-  }
-  
-  fila += `<td><button class="delete-btn" onclick="eliminarFila(${numero})" title="Eliminar fila">X</button></td></tr>`;
-  body.innerHTML += fila;
+/* Contenedor para el scroll horizontal fijo */
+.scroll-horizontal-fijo {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgb(255, 255, 255);
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #ffffff;
 }
 
-function agregarFila() {
-  filaCounter++;
-  agregarFilaHtml(filaCounter);
-  agregarEventListeners();
-  recalcular();
+.scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 8px;
 }
 
-function eliminarFila(numero) {
-  if (confirm('¿Estás seguro de eliminar esta fila?')) {
-    const fila = document.getElementById(`fila-${numero}`);
-    if (fila) {
-      fila.remove();
-      recalcular();
-    }
-  }
+.scroll-content {
+  height: 1px;
 }
 
-function agregarColumna() {
-  columnaCounter++;
-  
-  columnasData.push({
-    numeroTalon: 'Talon',
-    idTalon: String(columnaCounter),
-    nombreUsuario: 'corredor' + columnaCounter
-  });
-  historialesPrestamos.push([]);
-  
-  const thead = document.getElementById("tabla-head").querySelector("tr");
-  const thAcciones = thead.lastElementChild;
-  const newTh = document.createElement("th");
-  newTh.id = `col-${columnaCounter}`;
-  newTh.innerHTML = `
-    <div class="header-content">
-      <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Nombre Talon">
-      <input type="text" value="${columnaCounter}" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="ID">
-      <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
-      <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">Eliminar</button>
+/* Para sincronizar el ancho con la tabla */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+}
+
+/* Fijar las primeras dos columnas */
+table thead th:first-child,
+table thead th:nth-child(2),
+table tbody td:first-child,
+table tbody td:nth-child(2),
+table tfoot td:first-child,
+table tfoot td:nth-child(2) {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  background: white;
+  z-index: 10;
+}
+
+/* Columna Ganador */
+table thead th:first-child,
+table tbody td:first-child,
+table tfoot td:first-child {
+  left: 0 !important;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.15);
+}
+
+/* Columna Numero de Pelea */
+table thead th:nth-child(2),
+table tbody td:nth-child(2),
+table tfoot td:nth-child(2) {
+  left: 140px !important;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.15);
+}
+
+/* Para thead mantener el gradiente */
+table thead th:first-child,
+table thead th:nth-child(2) {
+  z-index: 20 !important;
+}
+
+/* Para tfoot mantener los colores de fondo originales */
+table tfoot td:first-child,
+table tfoot td:nth-child(2) {
+  background-color: #e3f2fd !important;
+  z-index: 10;
+}
+
+/* Para las filas con colores especiales en tfoot */
+.total-row td:first-child,
+.total-row td:nth-child(2) {
+  background-color: #fff3cd !important;
+}
+
+.descuento-row td:first-child,
+.descuento-row td:nth-child(2) {
+  background-color: #d4edda !important;
+}
+
+.resultado-row td:first-child,
+.resultado-row td:nth-child(2) {
+  background-color: #cce5ff !important;
+}
+
+/* Filas específicas de descuentos y ganancias */
+tfoot tr[style*="background-color: #ffe6e6"] td:first-child,
+tfoot tr[style*="background-color: #ffe6e6"] td:nth-child(2) {
+  background-color: #ffe6e6 !important;
+}
+
+tfoot tr[style*="background-color: #ffebee"] td:first-child,
+tfoot tr[style*="background-color: #ffebee"] td:nth-child(2) {
+  background-color: #ffebee !important;
+}
+
+tfoot tr[style*="background-color: #e8f5e8"] td:first-child,
+tfoot tr[style*="background-color: #e8f5e8"] td:nth-child(2) {
+  background-color: #e8f5e8 !important;
+}
+
+tfoot tr[style*="background-color: #f0f8ff"] td:first-child,
+tfoot tr[style*="background-color: #f0f8ff"] td:nth-child(2) {
+  background-color: #f0f8ff !important;
+}
+
+tfoot tr[style*="background-color: #f0f8f0"] td:first-child,
+tfoot tr[style*="background-color: #f0f8f0"] td:nth-child(2) {
+  background-color: #f0f8f0 !important;
+}
+
+.container-fluid {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.h2 {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  color: #150b85;
+}
+
+.btn-group-custom {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin: 0;
+  flex-wrap: wrap;
+  position: fixed;
+  top: 32px;
+  left: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 1px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  width: auto;
+}
+
+.search-box {
+  position: fixed;
+  top: 30px;
+  right: 20px;
+  z-index: 1000;
+  width: 380px;
+  background: white;
+  padding: 12px 15px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+table {
+  text-align: center;
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  box-shadow: 0 0 0px rgba(0,0,0,0.1);
+}
+
+thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+thead th {
+  padding: 15px 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+th:first-child { width: 140px; min-width: 140px; }
+th:nth-child(2) { width: 100px; min-width: 100px; }
+th:last-child { width: 80px; min-width: 80px; }
+
+th:not(:first-child):not(:nth-child(2)):not(:last-child) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+td:not(:first-child):not(:nth-child(2)):not(:last-child) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  padding: 8px 4px;
+}
+
+td:first-child { width: 140px; min-width: 140px; }
+td:nth-child(2) { width: 100px; min-width: 100px; }
+td:last-child { width: 80px; min-width: 80px; }
+
+tbody tr {
+  background: white;
+  transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 4px 50px rgb(218, 216, 68);
+}
+
+/* Asegurar que las columnas fijas en tbody mantengan el fondo blanco */
+tbody td:first-child,
+tbody td:nth-child(2) {
+  background: white !important;
+}
+
+tbody tr:hover td:first-child,
+tbody tr:hover td:nth-child(2) {
+  background: #f8f9fa !important;
+}
+
+tfoot {
+  font-weight: bold;
+  background-color: #e3f2fd;
+}
+
+.input-cell {
+  width: 100%;
+  max-width: 100px;
+  text-align: center;
+  border: 2px solid #e2e8f0;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.input-cell:focus {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.ganador-select {
+  width: 100%;
+  max-width: 130px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.ganador-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.nombre-usuario, .numero-talon {
+  width: 100%;
+  max-width: 110px;
+  text-align: center;
+  font-size: 11px;
+  border: 1px solid #ddd;
+  background: transparent;
+  padding: 2px;
+  margin: 1px 0;
+  border-radius: 3px;
+}
+
+.numero-talon {
+  font-weight: bold;
+  color: #0d6efd;
+  font-size: 12px;
+}
+
+.nombre-usuario:focus, .numero-talon:focus {
+  background: #e8f4fd;
+  border: 1px solid #0d6efd;
+  outline: none;
+}
+
+.btn-group-custom .btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-size: 14px;
+}
+
+.btn-group-custom .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+}
+
+.porcentaje-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 25px 0;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.porcentaje-section h5 {
+  color: #495057;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.delete-btn, .delete-col-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.delete-btn {
+  font-size: 16px;
+  padding: 2px 8px;
+}
+
+.delete-col-btn {
+  font-size: 11px;
+  margin-top: 3px;
+  padding: 1px 4px;
+}
+
+.delete-btn:hover, .delete-col-btn:hover {
+  background: #f8d7da;
+}
+
+.total-row { background-color: #fff3cd !important; }
+.descuento-row { background-color: #d4edda !important; }
+.resultado-row { background-color: #cce5ff !important; }
+
+.fila-encontrada {
+  background-color: #fff3cd !important;
+  border: 2px solid #ffc107 !important;
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0%, 100% { background-color: #fff3cd; }
+  50% { background-color: #ffeaa7; }
+}
+
+.fila-oculta { display: none; }
+
+th {
+  position: relative;
+  vertical-align: top;
+  padding: 8px 4px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+tfoot td {
+  padding: 6px 4px;
+  vertical-align: middle;
+}
+
+.prestamo-input {
+  width: 100%;
+  max-width: 90px;
+  text-align: center;
+  font-size: 11px;
+  padding: 3px;
+  margin: 2px 0;
+}
+
+.prestamo-btn {
+  font-size: 9px;
+  padding: 1px 3px;
+  width: 100%;
+  max-width: 90px;
+}
+
+.historial-container {
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 4px;
+  width: 100%;
+  max-width: 180px;
+  font-size: 10px;
+  background: white;
+  border-radius: 3px;
+  margin: 3px auto;
+}
+
+.evento-section {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  border: 2px solid #64b5f6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <br><br>
+    
+    <div class="h2">
+      <h2 class="mb-4 text-center">Registro de Peleas</h2>
     </div>
-  `;
-  thead.insertBefore(newTh, thAcciones);
-  
-  const rows = document.querySelectorAll("#tabla-body tr");
-  rows.forEach(row => {
-    const tdAcciones = row.lastElementChild;
-    const newTd = document.createElement("td");
-    const numeroFila = row.id.split('-')[1];
-    newTd.innerHTML = `<input type="number" value="0" class="form-control input-cell valor" data-col="${columnaCounter}" data-fila="${numeroFila}">`;
-    row.insertBefore(newTd, tdAcciones);
-  });
-  
-  const tfoot = document.getElementById("tabla-foot");
-  const rows2 = tfoot.querySelectorAll("tr");
-  
-  rows2[0].insertBefore(crearCelda(`menos${columnaCounter}`, "0"), rows2[0].lastElementChild);
-  rows2[1].insertBefore(crearCelda(`resultado-usuario${columnaCounter}`, "0"), rows2[1].lastElementChild);
-  rows2[2].insertBefore(crearCelda(`resultado-casa${columnaCounter}`, "0"), rows2[2].lastElementChild);
-  
-  const prestamoCelda = document.createElement("td");
-  prestamoCelda.innerHTML = `
-    <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-      <input type="number" id="prestamo-usuario${columnaCounter}" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-      <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">+ Descuento</button>
-      <div id="historial-prestamos${columnaCounter}" class="historial-container">
-        <em>Sin descuentos</em>
+    
+    <div class="evento-section">
+      <h5 style="color: #1565c0; font-weight: 700; margin-bottom: 15px;">Informacion del Evento</h5>
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <label class="form-label" style="font-weight: 600; color: #1976d2;">Nombre del Evento:</label>
+          <input type="text" id="nombre-evento" class="form-control" placeholder="Ej: Torneo de Gallos Cuernavaca" style="font-size: 16px; padding: 10px; border: 2px solid #64b5f6; border-radius: 8px;">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" style="font-weight: 600; color: #1976d2;">Fecha del Evento:</label>
+          <input type="text" id="fecha-evento" class="form-control" readonly style="font-size: 16px; padding: 10px; background: #f5f5f5; border: 2px solid #64b5f6; border-radius: 8px; font-weight: 600; color: #1565c0;">
+        </div>
       </div>
     </div>
-  `;
-  rows2[3].insertBefore(prestamoCelda, rows2[3].lastElementChild);
-  
-  const totalEmpresaCelda = document.createElement("td");
-  totalEmpresaCelda.id = `total-empresa-individual${columnaCounter}`;
-  totalEmpresaCelda.style.fontSize = "14px";
-  totalEmpresaCelda.style.color = "#0066cc";
-  totalEmpresaCelda.innerHTML = "<strong>0</strong>";
-  rows2[6].insertBefore(totalEmpresaCelda, rows2[6].lastElementChild);
-  
-  const totalFinalCelda = document.createElement("td");
-  totalFinalCelda.id = `total-final-usuario${columnaCounter}`;
-  totalFinalCelda.style.fontSize = "16px";
-  totalFinalCelda.style.color = "#28a745";
-  totalFinalCelda.innerHTML = `
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-      <small style="font-size: 10px; font-weight: normal; color: #666;">corredor${columnaCounter}</small>
-      <strong class="total-monto">0</strong>
+    
+    <div class="btn-group-custom">
+      <button class="btn btn-success btn-sm" onclick="exportarExcel()">Exportar Excel</button>
+      <button class="btn btn-primary btn-sm" onclick="agregarFila()">Agregar Pelea</button>
+      <button class="btn btn-info btn-sm" onclick="agregarColumna()">Agregar Corredor</button>
+      <button class="btn btn-warning btn-sm" onclick="resetearTabla()">Borrar Datos</button>
     </div>
-  `;
-  rows2[7].insertBefore(totalFinalCelda, rows2[7].lastElementChild);
-  
-  agregarEventListeners();
-  recalcular();
-}
 
-function crearCelda(id, texto) {
-  const td = document.createElement("td");
-  td.id = id;
-  td.innerHTML = `<strong>${texto}</strong>`;
-  return td;
-}
+    <div class="search-box">
+      <div class="input-group">
+        <!-- <span class="input-group-text">Buscar</span> -->
+        <input type="number" id="buscador-pelea" class="form-control" placeholder="Numero de pelea..." onkeyup="buscarPelea()" min="1">
+        <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">Limpiar</button>
+      </div>
+      <small class="text-muted">Ingresa el numero de pelea que quieres encontrar</small>
+      <div id="resultado-busqueda" class="alert alert-info mt-2" style="display: none; padding: 8px;">
+        <span id="mensaje-busqueda"></span>
+      </div>
+    </div>
 
-function eliminarColumna(colNum) {
-  if (columnaCounter <= 1) {
-    alert('Debes mantener al menos una columna.');
-    return;
-  }
-  
-  if (confirm('¿Estás seguro de eliminar esta columna?')) {
-    const th = document.getElementById(`col-${colNum}`);
-    if (th) th.remove();
-    
-    document.querySelectorAll(`input[data-col="${colNum}"]`).forEach(input => {
-      input.closest('td').remove();
-    });
-    
-    const elementos = [
-      `menos${colNum}`,
-      `resultado-usuario${colNum}`,
-      `resultado-casa${colNum}`,
-      `total-final-usuario${colNum}`,
-      `total-empresa-individual${colNum}`
-    ];
-    
-    elementos.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.remove();
-    });
-    
-    const prestamoInput = document.getElementById(`prestamo-usuario${colNum}`);
-    if (prestamoInput) prestamoInput.closest('td').remove();
-    
-    const index = columnasData.findIndex((col, idx) => idx + 1 === colNum);
-    if (index !== -1) {
-      columnasData.splice(index, 1);
-      historialesPrestamos.splice(index, 1);
-    }
-    
-    recalcular();
-  }
-}
-
-function actualizarNumeroTalon(col, valor) {
-  if (columnasData[col - 1]) {
-    columnasData[col - 1].numeroTalon = valor;
-  }
-}
-
-function actualizarIdTalon(col, valor) {
-  if (columnasData[col - 1]) {
-    columnasData[col - 1].idTalon = valor;
-  }
-}
-
-function actualizarNombreUsuario(col, valor) {
-  if (columnasData[col - 1]) {
-    columnasData[col - 1].nombreUsuario = valor;
-    
-    // Actualizar el nombre en la fila de totales
-    const totalFinalEl = document.getElementById(`total-final-usuario${col}`);
-    if (totalFinalEl) {
-      const smallTag = totalFinalEl.querySelector('small');
-      if (smallTag) {
-        smallTag.textContent = valor;
-      }
-    }
-  }
-}
-
-function agregarEventListeners() {
-  document.querySelectorAll(".valor").forEach(input => {
-    input.removeEventListener("input", recalcular);
-    input.addEventListener("input", recalcular);
-  });
-}
-
-function recalcular() {
-  const porcentajeDescuento = Number(document.getElementById("porcentaje-descuento").value) || 0;
-  const porcentajeUsuario = Number(document.getElementById("porcentaje-usuario").value) || 70;
-  const porcentajeCasa = Number(document.getElementById("porcentaje-casa").value) || 30;
-  
-  document.getElementById("porcentaje-mostrar").innerText = porcentajeDescuento;
-  document.getElementById("porcentaje-usuario-mostrar").innerText = porcentajeUsuario;
-  document.getElementById("porcentaje-casa-mostrar").innerText = porcentajeCasa;
-  
-  for (let j = 1; j <= columnaCounter; j++) {
-    let suma = 0;
-    document.querySelectorAll(`input[data-col="${j}"]`).forEach(input => {
-      suma += Number(input.value) || 0;
-    });
-    
-    const descuento = suma * (porcentajeDescuento / 100);
-    const paraUsuario = descuento * (porcentajeUsuario / 100);
-    const paraCasa = descuento * (porcentajeCasa / 100);
-    
-    const menosEl = document.getElementById("menos" + j);
-    const usuarioEl = document.getElementById("resultado-usuario" + j);
-    const casaEl = document.getElementById("resultado-casa" + j);
-    
-    if (menosEl) menosEl.innerText = descuento.toFixed(0);
-    if (usuarioEl) usuarioEl.innerText = paraUsuario.toFixed(0);
-    if (casaEl) casaEl.innerText = paraCasa.toFixed(0);
-  }
-  
-  recalcularConPrestamos();
-  recalcularConDescuentosEmpresa();
-  recalcularConGanancias();
-}
-
-function agregarPrestamo(usuario) {
-  const prestamoInput = document.getElementById(`prestamo-usuario${usuario}`);
-  const cantidadPrestamo = Number(prestamoInput.value);
-  
-  if (cantidadPrestamo > 0) {
-    const descripcion = prompt(`Describe el descuento de ${cantidadPrestamo} para ${columnasData[usuario-1]?.nombreUsuario || 'corredor' + usuario}:`, 'Descuento del corredor');
-    
-    if (descripcion !== null) {
-      const fecha = new Date().toLocaleDateString('es-MX');
-      const prestamo = {
-        cantidad: cantidadPrestamo,
-        descripcion: descripcion || 'Sin descripción',
-        fecha: fecha
-      };
-      
-      historialesPrestamos[usuario - 1].push(prestamo);
-      prestamoInput.value = 0;
-      actualizarHistorialPrestamos(usuario);
-      recalcularConPrestamos();
-    }
-  } else {
-    alert('Por favor, ingresa una cantidad mayor a 0 para el descuento.');
-  }
-}
-
-function actualizarHistorialPrestamos(usuario) {
-  const historialDiv = document.getElementById(`historial-prestamos${usuario}`);
-  const prestamos = historialesPrestamos[usuario - 1];
-  
-  if (prestamos.length === 0) {
-    historialDiv.innerHTML = '<em>Sin descuentos</em>';
-  } else {
-    let html = '';
-    prestamos.forEach((prestamo, index) => {
-      html += `
-        <div style="border-bottom: 1px solid #eee; padding: 2px 0; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>$${prestamo.cantidad}</strong><br>
-            <small>${prestamo.descripcion}</small><br>
-            <tiny style="color: #666;">${prestamo.fecha}</tiny>
-          </div>
-          <button onclick="eliminarPrestamo(${usuario}, ${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar descuento">X</button>
+    <div class="porcentaje-section">
+      <h5>Configuracion de Porcentajes</h5>
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <label class="form-label">Porcentaje a recibir de las peleas:</label>
+          <input type="number" id="porcentaje-descuento" value="10" min="0" max="100" class="form-control" style="width: 100px; display: inline-block;" onchange="recalcular()"> %
         </div>
-      `;
-    });
-    historialDiv.innerHTML = html;
-  }
-}
-
-function eliminarPrestamo(usuario, index) {
-  if (confirm('¿Estás seguro de eliminar este descuento?')) {
-    historialesPrestamos[usuario - 1].splice(index, 1);
-    actualizarHistorialPrestamos(usuario);
-    recalcularConPrestamos();
-  }
-}
-
-function recalcularConPrestamos() {
-  for (let j = 1; j <= columnaCounter; j++) {
-    const resultadoUsuarioEl = document.getElementById("resultado-usuario" + j);
-    const totalFinalEl = document.getElementById("total-final-usuario" + j);
-    
-    if (resultadoUsuarioEl && totalFinalEl) {
-      const resultadoUsuario = Number(resultadoUsuarioEl.innerText) || 0;
-      
-      let totalPrestamos = 0;
-      if (historialesPrestamos[j - 1]) {
-        totalPrestamos = historialesPrestamos[j - 1].reduce((sum, prestamo) => sum + prestamo.cantidad, 0);
-      }
-      
-      const totalFinal = resultadoUsuario - totalPrestamos;
-      
-      // Actualizar el monto dentro del strong con clase total-monto
-      const totalMontoEl = totalFinalEl.querySelector('.total-monto');
-      if (totalMontoEl) {
-        totalMontoEl.innerText = totalFinal.toFixed(0);
-        
-        if (totalFinal < 0) {
-          totalFinalEl.style.color = '#dc3545';
-        } else {
-          totalFinalEl.style.color = '#28a745';
-        }
-      } else {
-        // Fallback para formato antiguo
-        totalFinalEl.innerText = totalFinal.toFixed(0);
-        
-        if (totalFinal < 0) {
-          totalFinalEl.style.color = '#dc3545';
-        } else {
-          totalFinalEl.style.color = '#28a745';
-        }
-      }
-    }
-  }
-}
-
-function agregarDescuentoEmpresa() {
-  const descuentoInput = document.getElementById(`descuento-empresa-total`);
-  const cantidadDescuento = Number(descuentoInput.value);
-  
-  if (cantidadDescuento > 0) {
-    const descripcion = prompt(`Describe el descuento de ${cantidadDescuento} para la Empresa:`, 'Descuento de la empresa');
-    
-    if (descripcion !== null) {
-      const fecha = new Date().toLocaleDateString('es-MX');
-      const descuento = {
-        cantidad: cantidadDescuento,
-        descripcion: descripcion || 'Sin descripción',
-        fecha: fecha
-      };
-      
-      historialesDescuentosEmpresa.push(descuento);
-      descuentoInput.value = 0;
-      actualizarHistorialDescuentosEmpresa();
-      recalcularConDescuentosEmpresa();
-    }
-  } else {
-    alert('Por favor, ingresa una cantidad mayor a 0 para el descuento.');
-  }
-}
-
-function actualizarHistorialDescuentosEmpresa() {
-  const historialDiv = document.getElementById(`historial-descuentos-empresa`);
-  
-  if (historialesDescuentosEmpresa.length === 0) {
-    historialDiv.innerHTML = '<em>Sin descuentos</em>';
-  } else {
-    let html = '';
-    historialesDescuentosEmpresa.forEach((descuento, index) => {
-      html += `
-        <div style="border-bottom: 1px solid #eee; padding: 3px 0; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>$${descuento.cantidad}</strong><br>
-            <small>${descuento.descripcion}</small><br>
-            <tiny style="color: #666;">${descuento.fecha}</tiny>
+        <div class="col-md-6">
+          <label class="form-label">Distribucion:</label>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(70, 30)">70-30%</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(60, 40)">60-40%</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(50, 50)">50-50%</button>
           </div>
-          <button onclick="eliminarDescuentoEmpresa(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar descuento">X</button>
         </div>
-      `;
-    });
-    historialDiv.innerHTML = html;
-  }
-}
-
-function eliminarDescuentoEmpresa(index) {
-  if (confirm('¿Estás seguro de eliminar este descuento?')) {
-    historialesDescuentosEmpresa.splice(index, 1);
-    actualizarHistorialDescuentosEmpresa();
-    recalcularConDescuentosEmpresa();
-  }
-}
-
-function recalcularConDescuentosEmpresa() {
-  recalcularConGanancias();
-}
-
-function agregarGananciaEmpresa() {
-  const gananciaInput = document.getElementById(`ganancia-empresa-total`);
-  const cantidadGanancia = Number(gananciaInput.value);
-  
-  if (cantidadGanancia > 0) {
-    const descripcion = prompt(`Describe la ganancia adicional de ${cantidadGanancia} para la Empresa:`, 'Ganancia adicional');
-    
-    if (descripcion !== null) {
-      const fecha = new Date().toLocaleDateString('es-MX');
-      const ganancia = {
-        cantidad: cantidadGanancia,
-        descripcion: descripcion || 'Sin descripción',
-        fecha: fecha
-      };
-      
-      historialGananciasEmpresa.push(ganancia);
-      gananciaInput.value = 0;
-      actualizarHistorialGananciasEmpresa();
-      recalcularConGanancias();
-    }
-  } else {
-    alert('Por favor, ingresa una cantidad mayor a 0 para la ganancia.');
-  }
-}
-
-function actualizarHistorialGananciasEmpresa() {
-  const historialDiv = document.getElementById(`historial-ganancias-empresa`);
-  
-  if (historialGananciasEmpresa.length === 0) {
-    historialDiv.innerHTML = '<em>Sin ganancias</em>';
-  } else {
-    let html = '';
-    historialGananciasEmpresa.forEach((ganancia, index) => {
-      html += `
-        <div style="border-bottom: 1px solid #eee; padding: 3px 0; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>$${ganancia.cantidad}</strong><br>
-            <small>${ganancia.descripcion}</small><br>
-            <tiny style="color: #666;">${ganancia.fecha}</tiny>
-          </div>
-          <button onclick="eliminarGananciaEmpresa(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar ganancia">X</button>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-12">
+          <label class="form-label">O personalizar:</label>
+          <input type="number" id="porcentaje-usuario" value="50" min="0" max="100" class="form-control" style="width: 80px; display: inline-block;" onchange="actualizarDistribucion()"> % Corredor
+          <span class="mx-2">-</span>
+          <input type="number" id="porcentaje-casa" value="50" min="0" max="100" class="form-control" style="width: 80px; display: inline-block;" onchange="actualizarDistribucion()"> % Empresa
+          <button class="btn btn-sm btn-success ms-2" onclick="aplicarDistribucionPersonalizada()">Aplicar</button>
         </div>
-      `;
-    });
-    historialDiv.innerHTML = html;
-  }
-}
-
-function eliminarGananciaEmpresa(index) {
-  if (confirm('¿Estás seguro de eliminar esta ganancia?')) {
-    historialGananciasEmpresa.splice(index, 1);
-    actualizarHistorialGananciasEmpresa();
-    recalcularConGanancias();
-  }
-}
-
-function recalcularConGanancias() {
-  let totalEmpresaConsolidado = 0;
-  
-  const gananciasTotales = historialGananciasEmpresa.reduce((sum, ganancia) => sum + ganancia.cantidad, 0);
-  const descuentosTotales = historialesDescuentosEmpresa.reduce((sum, desc) => sum + desc.cantidad, 0);
-  
-  for (let j = 1; j <= columnaCounter; j++) {
-    const resultadoCasaEl = document.getElementById("resultado-casa" + j);
-    const totalEmpresaIndividualEl = document.getElementById("total-empresa-individual" + j);
+      </div>
+    </div>
     
-    if (resultadoCasaEl && totalEmpresaIndividualEl) {
-      const resultadoCasa = Number(resultadoCasaEl.innerText) || 0;
-      const totalEmpresaIndividual = resultadoCasa;
-      totalEmpresaConsolidado += totalEmpresaIndividual;
-      totalEmpresaIndividualEl.innerText = totalEmpresaIndividual.toFixed(0);
-    }
-  }
-  
-  const totalFinal = totalEmpresaConsolidado + gananciasTotales - descuentosTotales;
-  
-  const totalConsolidadoEl = document.getElementById("total-empresa-consolidado");
-  if (totalConsolidadoEl) {
-    totalConsolidadoEl.innerHTML = `<strong>TOTAL: ${totalFinal.toFixed(0)}</strong>`;
-  }
-}
+    <div class="scroll-horizontal-fijo">
+      <div class="scroll-wrapper" id="scroll-superior">
+        <div class="scroll-content" id="scroll-content"></div>
+      </div>
+    </div>
 
-function aplicarDistribucion(usuario, casa) {
-  document.getElementById("porcentaje-usuario").value = usuario;
-  document.getElementById("porcentaje-casa").value = casa;
-  recalcular();
-}
+    <div class="table-responsive" id="tabla-container">
+      <table id="tabla" class="table table-bordered">
+        <thead id="tabla-head">
+          <tr>
+            <th>
+              <div class="header-content">
+                <strong style="color: rgb(255, 215, 0);">Ganador</strong>
+                <small style="color: rgba(255, 255, 255, 0.8);">Resultado</small>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <strong>Numero</strong>
+                <small>de pelea</small>
+              </div>
+            </th>
+            <th id="col-1">
+              <div class="header-content">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talon">
+                <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button>
+              </div>
+            </th>
+            <th id="col-2">
+              <div class="header-content">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talon">
+                <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button>
+              </div>
+            </th>
+            <th id="col-3">
+              <div class="header-content">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talon">
+                <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
+                <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <strong>Eliminar</strong>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+        <tfoot id="tabla-foot">
+          <tr class="descuento-row">
+            <td><strong>-</strong></td>
+            <td><strong> (<span id="porcentaje-mostrar">10</span>%)</strong></td>
+            <td id="menos1"><strong>0</strong></td>
+            <td id="menos2"><strong>0</strong></td>
+            <td id="menos3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr class="resultado-row">
+            <td><strong>-</strong></td>
+            <td><strong>Para Corredor (<span id="porcentaje-usuario-mostrar">70</span>%)</strong></td>
+            <td id="resultado-usuario1"><strong>0</strong></td>
+            <td id="resultado-usuario2"><strong>0</strong></td>
+            <td id="resultado-usuario3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr class="resultado-row">
+            <td><strong>-</strong></td>
+            <td><strong>Para Empresa (<span id="porcentaje-casa-mostrar">30</span>%)</strong></td>
+            <td id="resultado-casa1"><strong>0</strong></td>
+            <td id="resultado-casa2"><strong>0</strong></td>
+            <td id="resultado-casa3"><strong>0</strong></td>
+            <td></td>
+          </tr>
+          <tr style="background-color: #ffe6e6 !important;">
+            <td><strong>Descuentos</strong></td>
+            <td><strong>Corredor</strong></td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario1" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">Presiona para Agregar el Prestamo o Descuento</button>
+                <div id="historial-prestamos1" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario2" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">Presiona para Agregar el Prestamo o Descuento</button>
+                <div id="historial-prestamos2" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
+                <input type="number" id="prestamo-usuario3" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">Presiona para Agregar el Prestamo o Descuento</button>
+                <div id="historial-prestamos3" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
+              </div>
+            </td>
+            <td></td>
+          </tr>
+          <tr style="background-color: #ffebee !important;">
+            <td><strong>Descuentos</strong></td>
+            <td><strong>Empresa</strong></td>
+            <td colspan="4" style="text-align: center;">
+              <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                  <input type="number" id="descuento-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-danger" onclick="agregarDescuentoEmpresa()">Presiona para agregar </button>
+                </div>
+                <div id="historial-descuentos-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
+                  <em>Sin descuentos</em>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr style="background-color: #e8f5e8 !important;">
+            <td><strong>Ganancias</strong></td>
+            <td><strong>Empresa</strong></td>
+            <td colspan="4" style="text-align: center;">
+              <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                  <input type="number" id="ganancia-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">Presiona para Agregar </button>
+                </div>
+                <div id="historial-ganancias-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
+                  <em>Sin ganancias</em>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr style="background-color: #f0f8ff !important; border-top: 2px solid #0066cc;">
+            <td><strong>TOTAL</strong></td>
+            <td><strong>EMPRESA</strong></td>
+            <td id="total-empresa-individual1" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-individual2" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-individual3" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
+            <td id="total-empresa-consolidado" style="font-size: 18px; color: #0066cc; border-left: 3px solid #0066cc;"><strong>TOTAL: 0</strong></td>
+          </tr>
+          <tr style="background-color: #f0f8f0 !important; border-top: 2px solid #28a745;">
+            <td><strong>TOTAL</strong></td>
+            <td><strong>CORREDOR</strong></td>
+            <td id="total-final-usuario1" style="font-size: 16px; color: #28a745;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <small style="font-size: 10px; font-weight: normal; color: #666;">corredor1</small>
+                <strong class="total-monto">0</strong>
+              </div>
+            </td>
+            <td id="total-final-usuario2" style="font-size: 16px; color: #28a745;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <small style="font-size: 10px; font-weight: normal; color: #666;">corredor2</small>
+                <strong class="total-monto">0</strong>
+              </div>
+            </td>
+            <td id="total-final-usuario3" style="font-size: 16px; color: #28a745;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <small style="font-size: 10px; font-weight: normal; color: #666;">corredor3</small>
+                <strong class="total-monto">0</strong>
+              </div>
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
 
-function actualizarDistribucion() {
-  const usuario = Number(document.getElementById("porcentaje-usuario").value);
-  const casa = 100 - usuario;
-  document.getElementById("porcentaje-casa").value = casa;
-}
+  <script src="public/js/main.js"></script>
 
-function aplicarDistribucionPersonalizada() {
-  recalcular();
-}
-
-function resetearTabla() {
-  if (confirm('¿Estás seguro de resetear toda la tabla? Esto borrará todos los datos.')) {
-    location.reload();
-  }
-}
-
-function buscarPelea() {
-  const numeroBuscar = document.getElementById("buscador-pelea").value;
-  const resultadoBusqueda = document.getElementById("resultado-busqueda");
-  const mensajeBusqueda = document.getElementById("mensaje-busqueda");
-  const todasLasFilas = document.querySelectorAll("#tabla-body tr");
-  
-  todasLasFilas.forEach(fila => {
-    fila.classList.remove("fila-encontrada", "fila-oculta");
-  });
-  
-  if (!numeroBuscar) {
-    resultadoBusqueda.style.display = "none";
-    return;
-  }
-  
-  let filaEncontrada = false;
-  
-  todasLasFilas.forEach(fila => {
-    const numeroFila = fila.querySelector("td:nth-child(2)").textContent.trim();
-    
-    if (numeroFila === numeroBuscar) {
-      fila.classList.add("fila-encontrada");
-      filaEncontrada = true;
-      
-      setTimeout(() => {
-        fila.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
-      }, 100);
-      
-      resultadoBusqueda.className = "alert alert-success";
-      mensajeBusqueda.innerHTML = `Pelea #${numeroBuscar} encontrada`;
-    } else {
-      fila.classList.add("fila-oculta");
-    }
-  });
-  
-  if (!filaEncontrada) {
-    resultadoBusqueda.className = "alert alert-warning";
-    mensajeBusqueda.innerHTML = `No se encontró la pelea #${numeroBuscar}`;
-    
-    todasLasFilas.forEach(fila => {
-      fila.classList.remove("fila-oculta");
-    });
-  }
-  
-  resultadoBusqueda.style.display = "block";
-}
-
-function limpiarBusqueda() {
-  document.getElementById("buscador-pelea").value = "";
-  document.getElementById("resultado-busqueda").style.display = "none";
-  
-  document.querySelectorAll("#tabla-body tr").forEach(fila => {
-    fila.classList.remove("fila-encontrada", "fila-oculta");
-  });
-}
-
-function exportarExcel() {
-  const datos = [];
-  
-  const nombreEvento = document.getElementById('nombre-evento').value || 'Evento sin nombre';
-  const fechaEvento = document.getElementById('fecha-evento').value;
-  
-  datos.push(['INFORMACION DEL EVENTO']);
-  datos.push(['Nombre del Evento:', nombreEvento]);
-  datos.push(['Fecha:', fechaEvento]);
-  datos.push([]);
-  datos.push([]);
-  
-  const encabezados = ['Ganador', 'Numero de Pelea'];
-  for (let i = 0; i < columnaCounter; i++) {
-    const col = columnasData[i];
-    if (col) {
-      encabezados.push(`${col.nombreUsuario} (${col.numeroTalon} ${col.idTalon})`);
-    }
-  }
-  datos.push(encabezados);
-  
-  const filas = document.querySelectorAll("#tabla-body tr");
-  filas.forEach(fila => {
-    const filaDatos = [];
-    
-    const ganadorSelect = fila.querySelector(".ganador-select");
-    const ganadorValor = ganadorSelect.value || "Sin resultado";
-    filaDatos.push(ganadorValor.toUpperCase());
-    
-    const numeroPelea = fila.querySelector("td:nth-child(2)").textContent.trim();
-    filaDatos.push(numeroPelea);
-    
-    const inputs = fila.querySelectorAll(".valor");
-    inputs.forEach(input => {
-      filaDatos.push(Number(input.value) || 0);
-    });
-    
-    datos.push(filaDatos);
-  });
-  
-  datos.push([]);
-  
-  const filaDescuento = ['Descuento', `(${document.getElementById("porcentaje-descuento").value}%)`];
-  for (let j = 1; j <= columnaCounter; j++) {
-    const menosEl = document.getElementById("menos" + j);
-    filaDescuento.push(menosEl ? Number(menosEl.innerText) : 0);
-  }
-  datos.push(filaDescuento);
-  
-  const porcentajeUsuario = document.getElementById("porcentaje-usuario").value;
-  const filaUsuario = ['Para Corredor', `(${porcentajeUsuario}%)`];
-  for (let j = 1; j <= columnaCounter; j++) {
-    const usuarioEl = document.getElementById("resultado-usuario" + j);
-    filaUsuario.push(usuarioEl ? Number(usuarioEl.innerText) : 0);
-  }
-  datos.push(filaUsuario);
-  
-  const porcentajeCasa = document.getElementById("porcentaje-casa").value;
-  const filaCasa = ['Para Empresa', `(${porcentajeCasa}%)`];
-  for (let j = 1; j <= columnaCounter; j++) {
-    const casaEl = document.getElementById("resultado-casa" + j);
-    filaCasa.push(casaEl ? Number(casaEl.innerText) : 0);
-  }
-  datos.push(filaCasa);
-  
-  const filaPrestamos = ['Descuentos del corredor', ''];
-  for (let j = 1; j <= columnaCounter; j++) {
-    let totalPrestamos = 0;
-    if (historialesPrestamos[j - 1]) {
-      totalPrestamos = historialesPrestamos[j - 1].reduce((sum, p) => sum + p.cantidad, 0);
-    }
-    filaPrestamos.push(totalPrestamos);
-  }
-  datos.push(filaPrestamos);
-  
-  const descuentoEmpresaTotal = historialesDescuentosEmpresa.reduce((sum, d) => sum + d.cantidad, 0);
-  datos.push(['Descuentos de la Empresa', descuentoEmpresaTotal]);
-  
-  const gananciaEmpresaTotal = historialGananciasEmpresa.reduce((sum, g) => sum + g.cantidad, 0);
-  datos.push(['Ganancias Adicionales Empresa', gananciaEmpresaTotal]);
-  
-  const filaTotalEmpresa = ['TOTAL GANANCIAS EMPRESA', ''];
-  for (let j = 1; j <= columnaCounter; j++) {
-    const totalEl = document.getElementById("total-empresa-individual" + j);
-    filaTotalEmpresa.push(totalEl ? Number(totalEl.innerText) : 0);
-  }
-  const totalConsolidado = document.getElementById("total-empresa-consolidado").textContent.replace('TOTAL:', '').trim();
-  filaTotalEmpresa.push(totalConsolidado);
-  datos.push(filaTotalEmpresa);
-  
-  const filaTotalFinal = ['TOTAL FINAL CORREDOR', ''];
-  for (let j = 1; j <= columnaCounter; j++) {
-    const totalEl = document.getElementById("total-final-usuario" + j);
-    filaTotalFinal.push(totalEl ? Number(totalEl.innerText) : 0);
-  }
-  datos.push(filaTotalFinal);
-  
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(datos);
-  
-  const wscols = [
-    {wch: 20},
-    {wch: 18}
-  ];
-  for (let i = 0; i < columnaCounter; i++) {
-    wscols.push({wch: 15});
-  }
-  ws['!cols'] = wscols;
-  
-  XLSX.utils.book_append_sheet(wb, ws, "Peleas");
-  XLSX.writeFile(wb, `Registro_Peleas_${nombreEvento}_${fechaEvento}.xlsx`);
-}
-
-function sincronizarScrolls() {
-  const scrollSuperior = document.getElementById('scroll-superior');
-  const tablaContainer = document.getElementById('tabla-container');
-  const scrollContent = document.getElementById('scroll-content');
-  const tabla = document.getElementById('tabla');
-  
-  if (!scrollSuperior || !tablaContainer || !scrollContent || !tabla) return;
-  
-  function ajustarAncho() {
-    scrollContent.style.width = tabla.scrollWidth + 'px';
-  }
-  
-  scrollSuperior.addEventListener('scroll', function() {
-    tablaContainer.scrollLeft = scrollSuperior.scrollLeft;
-  });
-  
-  tablaContainer.addEventListener('scroll', function() {
-    scrollSuperior.scrollLeft = tablaContainer.scrollLeft;
-  });
-  
-  ajustarAncho();
-  window.addEventListener('resize', ajustarAncho);
-  
-  const observer = new MutationObserver(ajustarAncho);
-  observer.observe(tabla, { childList: true, subtree: true });
-}
-
-// Modifica tu window.onload existente
-window.onload = function() {
-  inicializarTabla();
-  sincronizarScrolls();
-};
+</body>
+</html>
