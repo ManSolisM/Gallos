@@ -146,19 +146,19 @@ tfoot tr[style*="background-color: #f0f8f0"] td:nth-child(2) {
   margin: 0;
   flex-wrap: wrap;
   position: fixed;
-  top: 10px;
+  top: 32px;
   left: 10px;
   z-index: 1000;
   background: white;
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 1px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   width: auto;
 }
 
 .search-box {
   position: fixed;
-  top: 20px;
+  top: 30px;
   right: 20px;
   z-index: 1000;
   width: 380px;
@@ -601,8 +601,8 @@ tfoot td {
             <td><strong>Corredor</strong></td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario1" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario1" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Prestamo o Descuento</button>
                 <div id="historial-prestamos1" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -610,8 +610,8 @@ tfoot td {
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario2" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario2" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Prestamo o Descuento</button>
                 <div id="historial-prestamos2" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -619,8 +619,8 @@ tfoot td {
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario3" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario3" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Prestamo o Descuento</button>
                 <div id="historial-prestamos3" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -634,7 +634,7 @@ tfoot td {
             <td colspan="4" style="text-align: center;">
               <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
                 <div style="display: flex; gap: 15px; align-items: center;">
-                  <input type="number" id="descuento-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
+                  <input type="number" id="descuento-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
                   <button class="btn btn-sm btn-outline-danger" onclick="agregarDescuentoEmpresa()">+ Descuento</button>
                 </div>
                 <div id="historial-descuentos-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
@@ -649,7 +649,7 @@ tfoot td {
             <td colspan="4" style="text-align: center;">
               <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
                 <div style="display: flex; gap: 15px; align-items: center;">
-                  <input type="number" id="ganancia-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
+                  <input type="number" id="ganancia-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
                   <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">+ Ganancia</button>
                 </div>
                 <div id="historial-ganancias-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
