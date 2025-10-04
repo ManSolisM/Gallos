@@ -480,7 +480,7 @@ tfoot td {
 
     <div class="search-box">
       <div class="input-group">
-        <span class="input-group-text">Buscar</span>
+        <!-- <span class="input-group-text">Buscar</span> -->
         <input type="number" id="buscador-pelea" class="form-control" placeholder="Numero de pelea..." onkeyup="buscarPelea()" min="1">
         <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">Limpiar</button>
       </div>
@@ -542,7 +542,7 @@ tfoot td {
             <th id="col-1">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="ID">
+                <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
                 <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button>
               </div>
@@ -550,7 +550,7 @@ tfoot td {
             <th id="col-2">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="ID">
+                <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
                 <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button>
               </div>
@@ -558,7 +558,7 @@ tfoot td {
             <th id="col-3">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="ID">
+                <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
                 <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button>
               </div>
@@ -601,8 +601,8 @@ tfoot td {
             <td><strong>Corredor</strong></td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario1" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario1" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">Presiona para Agregar el Prestamo o Descuento</button>
                 <div id="historial-prestamos1" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -610,8 +610,8 @@ tfoot td {
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario2" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario2" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">Presiona para Agregar el Prestamo o Descuento</button>
                 <div id="historial-prestamos2" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -619,8 +619,8 @@ tfoot td {
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
-                <input type="number" id="prestamo-usuario3" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Descuento</button>
+                <input type="number" id="prestamo-usuario3" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">Presiona para Agregar el Prestamo o Descuento</button>
                 <div id="historial-prestamos3" class="historial-container">
                   <em>Sin descuentos</em>
                 </div>
@@ -634,8 +634,8 @@ tfoot td {
             <td colspan="4" style="text-align: center;">
               <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
                 <div style="display: flex; gap: 15px; align-items: center;">
-                  <input type="number" id="descuento-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
-                  <button class="btn btn-sm btn-outline-danger" onclick="agregarDescuentoEmpresa()">+ Descuento</button>
+                  <input type="number" id="descuento-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-danger" onclick="agregarDescuentoEmpresa()">Presiona para agregar </button>
                 </div>
                 <div id="historial-descuentos-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
                   <em>Sin descuentos</em>
@@ -649,8 +649,8 @@ tfoot td {
             <td colspan="4" style="text-align: center;">
               <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
                 <div style="display: flex; gap: 15px; align-items: center;">
-                  <input type="number" id="ganancia-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
-                  <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">+ Ganancia</button>
+                  <input type="number" id="ganancia-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">Presiona para Agregar </button>
                 </div>
                 <div id="historial-ganancias-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
                   <em>Sin ganancias</em>
