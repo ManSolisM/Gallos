@@ -2,496 +2,463 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/png" href="public/img/pajaro.png">
   <title>Registro peleas</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="public/css/style.css" ></script>
   <style>
-     body {
-      padding: 20px;
-      min-height: 100vh;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .container-fluid {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      margin-bottom: 30px;
-    }
-    .h2{
-      font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-      color: #150b85;
-    }
+    body {
+  padding: 20px;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .btn-group-custom {
-      display: flex;
-      flex-direction: row;   /* Alineación en fila horizontal */
-      gap: 0px;
-      margin: 0;             /* Eliminamos el margen que empuja */
-      flex-wrap: nowrap;     /* NO permitir salto de línea */
-      position: fixed;       /* Fijo en pantalla */
-      top: 0px;             /* Distancia desde arriba */
-      left: 0px;            /* Distancia desde la izquierda */
-      z-index: 1000;         /* Encima de otros elementos */
-      background: white;     /* Fondo blanco */
-      padding: 5px 5px;    /* Espaciado interno */
-      border-radius: 12px;   /* Bordes redondeados */
-      box-shadow: 0 0px 0px rgba(0,0,0,0.3); /* Sombra */
-      width: auto;
-    }
+/* Contenedor para el scroll horizontal fijo */
+.scroll-horizontal-fijo {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgb(255, 255, 255);
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #ffffff;
+}
 
-    /* css buscador de peleas - fijo superior derecha */
-    .row.mb-3 {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      width: 380px;
-      background: white;
-      padding: 12px 15px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      margin: 0 !important;
-    }
-    
-    .row.mb-3 .col-md-6 {
-      width: 100%;
-      max-width: 100%;
-      flex: 0 0 100%;
-      padding: 0;
-    }
-    
-    .row.mb-3 .col-md-6:last-child {
-      margin-top: 8px;
-    }
-    
-    .row.mb-3 .input-group {
-      margin-bottom: 5px;
-    }
-    
-    .row.mb-3 #resultado-busqueda {
-      margin: 0;
-      padding: 6px;
-      font-size: 13px;
-    }
-    
-    .row.mb-3 .text-muted {
-      font-size: 11px;
-    }
+.scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+}
 
-    /* css calculadora */
-    .mini-calc {
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 8px 5px rgba(0,0,0,0.3);
-      width: 280px;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-    .mini-calc input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 2px solid #000000;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: rgba(255,255,255,0.95);
-      font-weight: 500;
-    }
-    .mini-calc .row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .mini-calc button {
-      flex: 1;
-      padding: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background: #fff;
-      color: #09164e;
-      transition: all 0.3s ease;
-    }
-    .mini-calc button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 5px rgba(0,0,0,0.2);
-    }
-    .mini-calc button.secondary {
-      background: #f1f5f9;
-      color: #6b7280;
-    }
-    .mini-calc .result {
-      background: rgba(255,255,255,0.95);
-      padding: 10px;
-      border-radius: 8px;
-      border: 2px solid #fff;
-      font-weight: 600;
-      color: #09164e;
-    }
-    .mini-calc .error {
-      color: #fee;
-      font-size: 12px;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    /*   termina css de calculadora */
-    
-    /* Estructura de tabla mejorada */
-    table {
-      text-align: center;
-      table-layout: fixed;
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      overflow: hidden;
-      border-radius: 10px;
-      box-shadow: 0 0 0px rgba(0,0,0,0.1);
-    }
-    
-    thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    thead th {
-      padding: 15px 8px;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 11px;
-      letter-spacing: 0.5px;
-    }
-    
-    /* Ancho fijo para columnas específicas */
-    th:first-child { width: 140px; }
-    th:nth-child(2) { width: 100px; }
-    th:last-child { width: 80px; }
-    
-    th:not(:first-child):not(:nth-child(2)):not(:last-child) {
-      width: 120px;
-      min-width: 120px;
-      max-width: 120px;
-    }
-    
-    td:not(:first-child):not(:nth-child(2)):not(:last-child) {
-      width: 120px;
-      min-width: 120px;
-      max-width: 120px;
-      padding: 8px 4px;
-    }
-    
-    td:first-child { width: 140px; }
-    td:nth-child(2) { width: 100px; }
-    td:last-child { width: 80px; }
-    
-    tbody tr {
-      background: white;
-      transition: all 0.3s ease;
-    }
-    
-    tbody tr:hover {
-      background: #f8f9fa;
-      transform: scale(1.01);
-      box-shadow: 0 4px 50px rgb(218, 216, 68);
-    }
-    
-    tfoot {
-      font-weight: bold;
-      background-color: #e3f2fd;
-    }
-    
-    .input-cell {
-      width: 100%;
-      max-width: 100px;
-      text-align: center;
-      border: 2px solid #e2e8f0;
-      background: white;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    
-    .input-cell:focus {
-      background: #fff3cd;
-      border: 2px solid #ffc107;
-      outline: none;
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-    }
-    
-    .ganador-select {
-      width: 100%;
-      max-width: 130px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 13px;
-      padding: 8px;
-      border-radius: 6px;
-      border: 2px solid #e2e8f0;
-      transition: all 0.3s ease;
-    }
-    
-    .ganador-select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .nombre-usuario {
-      width: 100%;
-      max-width: 110px;
-      text-align: center;
-      font-size: 11px;
-      color: #2d2d2d;
-      border: 1px solid #ddd;
-      background: transparent;
-      padding: 2px;
-      margin: 1px 0;
-      border-radius: 3px;
-    }
-    
-    .nombre-usuario:focus {
-      background: #e8f4fd;
-      border: 1px solid #0d6efd;
-      outline: none;
-    }
-    
-    .numero-talon {
-      width: 100%;
-      max-width: 110px;
-      text-align: center;
-      font-weight: bold;
-      color: #0d6efd;
-      border: 1px solid #ddd;
-      background: transparent;
-      padding: 2px;
-      margin: 1px 0;
-      border-radius: 3px;
-      font-size: 12px;
-    }
-    
-    .numero-talon:focus {
-      background: #cfe2ff;
-      border: 1px solid #0d6efd;
-      outline: none;
-    }
-    
-    .btn-group-custom {
-      display: flex;
-      gap: 12px;
-      margin: 25px 0;
-      flex-wrap: wrap;
-    }
-    
-    .btn-group-custom .btn {
-      padding: 12px 24px;
-      font-weight: 600;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      border: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-    
-    .btn-group-custom .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    }
-    
-    .btn-success {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      color: white;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-      color: white;
-    }
-    
-    .btn-info {
-      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-      color: white;
-    }
-    
-    .btn-warning {
-      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-      color: white;
-    }
-    
-    .porcentaje-section {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      padding: 20px;
-      border-radius: 12px;
-      margin: 25px 0;
-      border: 2px solid #dee2e6;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    
-    .porcentaje-section h5 {
-      color: #495057;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-    
-    .delete-btn {
-      background: none;
-      border: none;
-      color: #dc3545;
-      font-size: 16px;
-      cursor: pointer;
-      padding: 2px 8px;
-      border-radius: 4px;
-      width: 100%;
-    }
-    
-    .delete-btn:hover {
-      background: #f8d7da;
-    }
-    
-    .delete-col-btn {
-      background: none;
-      border: none;
-      color: #dc3545;
-      font-size: 11px;
-      cursor: pointer;
-      margin-top: 3px;
-      padding: 1px 4px;
-      border-radius: 3px;
-      width: 100%;
-    }
-    
-    .delete-col-btn:hover {
-      background: #f8d7da;
-    }
-    
-    .total-row {
-      background-color: #fff3cd !important;
-    }
-    .descuento-row {
-      background-color: #d4edda !important;
-    }
-    .resultado-row {
-      background-color: #cce5ff !important;
-    }
-    .fila-encontrada {
-      background-color: #fff3cd !important;
-      border: 2px solid #ffc107 !important;
-      animation: highlight 2s ease-in-out;
-    }
-    
-    @keyframes highlight {
-      0% { background-color: #fff3cd; }
-      50% { background-color: #ffeaa7; }
-      100% { background-color: #fff3cd; }
-    }
-    
-    .fila-oculta {
-      display: none;
-    }
-    
-    .table-responsive {
-      overflow-x: auto;
-    }
-    
-    th {
-      position: relative;
-      vertical-align: top;
-      padding: 8px 4px;
-    }
-    
-    .header-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      width: 100%;
-    }
-    
-    tfoot td {
-      padding: 6px 4px;
-      vertical-align: middle;
-    }
-    
-    .prestamo-input {
-      width: 100%;
-      max-width: 90px;
-      text-align: center;
-      font-size: 11px;
-      padding: 3px;
-      margin: 2px 0;
-    }
-    
-    .prestamo-btn {
-      font-size: 9px;
-      padding: 1px 3px;
-      width: 100%;
-      max-width: 90px;
-    }
-    
-    .historial-container {
-      max-height: 100px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 4px;
-      width: 100%;
-      max-width: 180px;
-      font-size: 10px;
-      background: white;
-      border-radius: 3px;
-      margin: 0 auto;
-    }
-    
-    .label-usuario {
-      font-size: 11px;
-      font-weight: bold;
-      display: block;
-      margin-bottom: 3px;
-    }
+.scroll-content {
+  height: 1px;
+}
 
-    /* Indicador de posición */
-.indicador-posicion {
-  padding: 15px;
+/* Para sincronizar el ancho con la tabla */
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+}
+
+/* Fijar las primeras dos columnas */
+table thead th:first-child,
+table thead th:nth-child(2),
+table tbody td:first-child,
+table tbody td:nth-child(2),
+table tfoot td:first-child,
+table tfoot td:nth-child(2) {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  background: white;
+  z-index: 10;
+}
+
+/* Columna Ganador */
+table thead th:first-child,
+table tbody td:first-child,
+table tfoot td:first-child {
+  left: 0 !important;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.15);
+}
+
+/* Columna Numero de Pelea */
+table thead th:nth-child(2),
+table tbody td:nth-child(2),
+table tfoot td:nth-child(2) {
+  left: 140px !important;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.15);
+}
+
+/* Para thead mantener el gradiente */
+table thead th:first-child,
+table thead th:nth-child(2) {
+  z-index: 20 !important;
+}
+
+/* Para tfoot mantener los colores de fondo originales */
+table tfoot td:first-child,
+table tfoot td:nth-child(2) {
+  background-color: #e3f2fd !important;
+  z-index: 10;
+}
+
+/* Para las filas con colores especiales en tfoot */
+.total-row td:first-child,
+.total-row td:nth-child(2) {
+  background-color: #fff3cd !important;
+}
+
+.descuento-row td:first-child,
+.descuento-row td:nth-child(2) {
+  background-color: #d4edda !important;
+}
+
+.resultado-row td:first-child,
+.resultado-row td:nth-child(2) {
+  background-color: #cce5ff !important;
+}
+
+/* Filas específicas de descuentos y ganancias */
+tfoot tr[style*="background-color: #ffe6e6"] td:first-child,
+tfoot tr[style*="background-color: #ffe6e6"] td:nth-child(2) {
+  background-color: #ffe6e6 !important;
+}
+
+tfoot tr[style*="background-color: #ffebee"] td:first-child,
+tfoot tr[style*="background-color: #ffebee"] td:nth-child(2) {
+  background-color: #ffebee !important;
+}
+
+tfoot tr[style*="background-color: #e8f5e8"] td:first-child,
+tfoot tr[style*="background-color: #e8f5e8"] td:nth-child(2) {
+  background-color: #e8f5e8 !important;
+}
+
+tfoot tr[style*="background-color: #f0f8ff"] td:first-child,
+tfoot tr[style*="background-color: #f0f8ff"] td:nth-child(2) {
+  background-color: #f0f8ff !important;
+}
+
+tfoot tr[style*="background-color: #f0f8f0"] td:first-child,
+tfoot tr[style*="background-color: #f0f8f0"] td:nth-child(2) {
+  background-color: #f0f8f0 !important;
+}
+
+.container-fluid {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.h2 {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  color: #150b85;
+}
+
+.btn-group-custom {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin: 0;
+  flex-wrap: wrap;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  width: auto;
+}
+
+.search-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 380px;
+  background: white;
+  padding: 12px 15px;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  width: 200px;
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1000;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid #667eea;
-  animation: slideIn 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+table {
+  text-align: center;
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  box-shadow: 0 0 0px rgba(0,0,0,0.1);
+}
+
+thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+thead th {
+  padding: 15px 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+th:first-child { width: 140px; min-width: 140px; }
+th:nth-child(2) { width: 100px; min-width: 100px; }
+th:last-child { width: 80px; min-width: 80px; }
+
+th:not(:first-child):not(:nth-child(2)):not(:last-child) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+td:not(:first-child):not(:nth-child(2)):not(:last-child) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  padding: 8px 4px;
+}
+
+td:first-child { width: 140px; min-width: 140px; }
+td:nth-child(2) { width: 100px; min-width: 100px; }
+td:last-child { width: 80px; min-width: 80px; }
+
+tbody tr {
+  background: white;
+  transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 4px 50px rgb(218, 216, 68);
+}
+
+/* Asegurar que las columnas fijas en tbody mantengan el fondo blanco */
+tbody td:first-child,
+tbody td:nth-child(2) {
+  background: white !important;
+}
+
+tbody tr:hover td:first-child,
+tbody tr:hover td:nth-child(2) {
+  background: #f8f9fa !important;
+}
+
+tfoot {
+  font-weight: bold;
+  background-color: #e3f2fd;
+}
+
+.input-cell {
+  width: 100%;
+  max-width: 100px;
+  text-align: center;
+  border: 2px solid #e2e8f0;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.input-cell:focus {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  outline: none;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.ganador-select {
+  width: 100%;
+  max-width: 130px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.ganador-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.nombre-usuario, .numero-talon {
+  width: 100%;
+  max-width: 110px;
+  text-align: center;
+  font-size: 11px;
+  border: 1px solid #ddd;
+  background: transparent;
+  padding: 2px;
+  margin: 1px 0;
+  border-radius: 3px;
+}
+
+.numero-talon {
+  font-weight: bold;
+  color: #0d6efd;
+  font-size: 12px;
+}
+
+.nombre-usuario:focus, .numero-talon:focus {
+  background: #e8f4fd;
+  border: 1px solid #0d6efd;
+  outline: none;
+}
+
+.btn-group-custom .btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  font-size: 14px;
+}
+
+.btn-group-custom .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+}
+
+.porcentaje-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 25px 0;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.porcentaje-section h5 {
+  color: #495057;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.delete-btn, .delete-col-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.delete-btn {
+  font-size: 16px;
+  padding: 2px 8px;
+}
+
+.delete-col-btn {
+  font-size: 11px;
+  margin-top: 3px;
+  padding: 1px 4px;
+}
+
+.delete-btn:hover, .delete-col-btn:hover {
+  background: #f8d7da;
+}
+
+.total-row { background-color: #fff3cd !important; }
+.descuento-row { background-color: #d4edda !important; }
+.resultado-row { background-color: #cce5ff !important; }
+
+.fila-encontrada {
+  background-color: #fff3cd !important;
+  border: 2px solid #ffc107 !important;
+  animation: highlight 2s ease-in-out;
+}
+
+@keyframes highlight {
+  0%, 100% { background-color: #fff3cd; }
+  50% { background-color: #ffeaa7; }
+}
+
+.fila-oculta { display: none; }
+
+th {
+  position: relative;
+  vertical-align: top;
+  padding: 8px 4px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+tfoot td {
+  padding: 6px 4px;
+  vertical-align: middle;
+}
+
+.prestamo-input {
+  width: 100%;
+  max-width: 90px;
+  text-align: center;
+  font-size: 11px;
+  padding: 3px;
+  margin: 2px 0;
+}
+
+.prestamo-btn {
+  font-size: 9px;
+  padding: 1px 3px;
+  width: 100%;
+  max-width: 90px;
+}
+
+.historial-container {
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 4px;
+  width: 100%;
+  max-width: 180px;
+  font-size: 10px;
+  background: white;
+  border-radius: 3px;
+  margin: 3px auto;
+}
+
+.evento-section {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px 0;
+  border: 2px solid #64b5f6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
   </style>
-
 </head>
 <body>
   <div class="container-fluid">
-    <br></br>
-    <br></br>
+    <br><br>
     
     <div class="h2">
-    <h2 class="mb-4 text-center" ><img src="public/img/pajaro.png" alt="Gallo" style="width: 50px; height: auto; border-radius: 12px;"> Registro de Peleas</h2>
+      <h2 class="mb-4 text-center">Registro de Peleas</h2>
     </div>
     
-    <div class="evento-section" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid #64b5f6; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-      <h5 style="color: #1565c0; font-weight: 700; margin-bottom: 15px;">🎯 Información del Evento</h5>
+    <div class="evento-section">
+      <h5 style="color: #1565c0; font-weight: 700; margin-bottom: 15px;">Informacion del Evento</h5>
       <div class="row align-items-center">
         <div class="col-md-8">
           <label class="form-label" style="font-weight: 600; color: #1976d2;">Nombre del Evento:</label>
@@ -505,37 +472,33 @@
     </div>
     
     <div class="btn-group-custom">
-      <button class="btn btn-success" onclick="exportarExcel()">📥 Exportar a Excel</button>
-      <button class="btn btn-primary" onclick="agregarFila()">➕ Agregar Pelea</button>
-      <button class="btn btn-info" onclick="agregarColumna()">➕ Agregar Corredor</button>
-      <button class="btn btn-warning" onclick="resetearTabla()">🔄 Resetear Programa</button>
+      <button class="btn btn-success btn-sm" onclick="exportarExcel()">Exportar Excel</button>
+      <button class="btn btn-primary btn-sm" onclick="agregarFila()">Agregar Pelea</button>
+      <button class="btn btn-info btn-sm" onclick="agregarColumna()">Agregar Corredor</button>
+      <button class="btn btn-warning btn-sm" onclick="resetearTabla()">Borrar Datos</button>
     </div>
 
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <div class="input-group">
-          <span class="input-group-text">🔍</span>
-          <input type="number" id="buscador-pelea" class="form-control" placeholder="Buscar por número de pelea..." onkeyup="buscarPelea()" min="1">
-          <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">Limpiar</button>
-        </div>
-        <small class="text-muted">Ingresa el número de pelea que quieres encontrar</small>
+    <div class="search-box">
+      <div class="input-group">
+        <span class="input-group-text">Buscar</span>
+        <input type="number" id="buscador-pelea" class="form-control" placeholder="Numero de pelea..." onkeyup="buscarPelea()" min="1">
+        <button class="btn btn-outline-secondary" type="button" onclick="limpiarBusqueda()">Limpiar</button>
       </div>
-      <div class="col-md-6">
-        <div id="resultado-busqueda" class="alert alert-info" style="display: none; margin: 0; padding: 8px;">
-          <span id="mensaje-busqueda"></span>
-        </div>
+      <small class="text-muted">Ingresa el numero de pelea que quieres encontrar</small>
+      <div id="resultado-busqueda" class="alert alert-info mt-2" style="display: none; padding: 8px;">
+        <span id="mensaje-busqueda"></span>
       </div>
     </div>
 
     <div class="porcentaje-section">
-      <h5>⚙️ Configuración de Porcentajes</h5>
+      <h5>Configuracion de Porcentajes</h5>
       <div class="row align-items-center">
         <div class="col-md-6">
           <label class="form-label">Porcentaje a recibir de las peleas:</label>
           <input type="number" id="porcentaje-descuento" value="10" min="0" max="100" class="form-control" style="width: 100px; display: inline-block;" onchange="recalcular()"> %
         </div>
         <div class="col-md-6">
-          <label class="form-label">Distribución:</label>
+          <label class="form-label">Distribucion:</label>
           <div class="btn-group" role="group">
             <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(70, 30)">70-30%</button>
             <button class="btn btn-outline-primary btn-sm" onclick="aplicarDistribucion(60, 40)">60-40%</button>
@@ -553,50 +516,56 @@
         </div>
       </div>
     </div>
+    
+    <div class="scroll-horizontal-fijo">
+  <div class="scroll-wrapper" id="scroll-superior">
+    <div class="scroll-content" id="scroll-content"></div>
+  </div>
+</div>
 
-    <div class="table-responsive">
-      <table id="tabla" class="table table-bordered">
+<div class="table-responsive" id="tabla-container">
+  <table id="tabla" class="table table-bordered">
         <thead id="tabla-head">
           <tr>
             <th>
               <div class="header-content">
-                <strong style="color: rgb(255, 215, 0);">🏆 Ganador</strong>
-                <small style="color: rgba(0, 0, 0, 0.8);">Resultado</small>
+                <strong style="color: rgb(255, 215, 0);">Ganador</strong>
+                <small style="color: rgba(255, 255, 255, 0.8);">Resultado</small>
               </div>
             </th>
             <th>
               <div class="header-content">
-                <strong>Número</strong>
+                <strong>Numero</strong>
                 <small>de pelea</small>
               </div>
             </th>
             <th id="col-1">
               <div class="header-content">
-                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="ID">
                 <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">🗑️</button>
+                <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button>
               </div>
             </th>
             <th id="col-2">
               <div class="header-content">
-                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="ID">
                 <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">🗑️</button>
+                <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button>
               </div>
             </th>
             <th id="col-3">
               <div class="header-content">
-                <input type="text" value="Talón" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talón">
+                <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="ID">
                 <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">🗑️</button>
+                <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button>
               </div>
             </th>
             <th>
               <div class="header-content">
-                <strong>Eliminar - 🗑️</strong>
+                <strong>Eliminar</strong>
               </div>
             </th>
           </tr>
@@ -628,115 +597,85 @@
             <td></td>
           </tr>
           <tr style="background-color: #ffe6e6 !important;">
-            <td><strong>💸</strong></td>
-            <td><strong>Préstamos del corredor</strong></td>
+            <td><strong>Descuentos</strong></td>
+            <td><strong>Corredor</strong></td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
                 <input type="number" id="prestamo-usuario1" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Préstamo o Descuento</button>
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(1)">+ Descuento</button>
+                <div id="historial-prestamos1" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
               </div>
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
                 <input type="number" id="prestamo-usuario2" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Préstamo o Descuento</button>
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(2)">+ Descuento</button>
+                <div id="historial-prestamos2" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
               </div>
             </td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
                 <input type="number" id="prestamo-usuario3" value="0" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Préstamo o Descuento </button>
+                <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(3)">+ Descuento</button>
+                <div id="historial-prestamos3" class="historial-container">
+                  <em>Sin descuentos</em>
+                </div>
               </div>
             </td>
             <td></td>
           </tr>
-          <tr style="background-color: #e8f5e8 !important;">
-            <td><strong>💰</strong></td>
-            <td><strong>Ganancias Adicionales Empresa</strong></td>
+          <tr style="background-color: #ffebee !important;">
+            <td><strong>Descuentos</strong></td>
+            <td><strong>Empresa</strong></td>
             <td colspan="4" style="text-align: center;">
-              <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
-                <input type="number" id="ganancia-empresa-total" value="" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
-                <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">+ Ganancia Empresa</button>
+              <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                  <input type="number" id="descuento-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConDescuentosEmpresa()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-danger" onclick="agregarDescuentoEmpresa()">+ Descuento</button>
+                </div>
+                <div id="historial-descuentos-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
+                  <em>Sin descuentos</em>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr style="background-color: #e8f5e8 !important;">
+            <td><strong>Ganancias</strong></td>
+            <td><strong>Empresa</strong></td>
+            <td colspan="4" style="text-align: center;">
+              <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-direction: column;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                  <input type="number" id="ganancia-empresa-total" value="0" class="form-control" style="width: 120px; text-align: center;" onchange="recalcularConGanancias()" placeholder="0">
+                  <button class="btn btn-sm btn-outline-success" onclick="agregarGananciaEmpresa()">+ Ganancia</button>
+                </div>
+                <div id="historial-ganancias-empresa" class="historial-container" style="max-width: 300px; width: 100%;">
+                  <em>Sin ganancias</em>
+                </div>
               </div>
             </td>
           </tr>
           <tr style="background-color: #f0f8ff !important; border-top: 2px solid #0066cc;">
-            <td><strong>🏛️</strong></td>
-            <td><strong>TOTAL GANANCIAS EMPRESA</strong></td>
+            <td><strong>TOTAL</strong></td>
+            <td><strong>EMPRESA</strong></td>
             <td id="total-empresa-individual1" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
             <td id="total-empresa-individual2" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
             <td id="total-empresa-individual3" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
             <td id="total-empresa-consolidado" style="font-size: 18px; color: #0066cc; border-left: 3px solid #0066cc;"><strong>TOTAL: 0</strong></td>
           </tr>
           <tr style="background-color: #f0f8f0 !important; border-top: 2px solid #28a745;">
-            <td><strong>💰</strong></td>
-            <td><strong>TOTAL FINAL PARA CORREDOR</strong></td>
+            <td><strong>TOTAL</strong></td>
+            <td><strong>CORREDOR</strong></td>
             <td id="total-final-usuario1" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
             <td id="total-final-usuario2" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
             <td id="total-final-usuario3" style="font-size: 16px; color: #28a745;"><strong>0</strong></td>
             <td></td>
           </tr>
-          <tr style="background-color: #fff3e0 !important;">
-            <td colspan="6">
-              <div style="padding: 10px; text-align: center;">
-                <strong>📋 Historial de Préstamos:</strong><br>
-                <div id="contenedor-historiales" style="display: flex; justify-content: space-around; margin-top: 5px; flex-wrap: wrap; gap: 10px;">
-                  <div>
-                    <span class="label-usuario" id="label-usuario1">corredor1:</span>
-                    <div id="historial-prestamos1" class="historial-container">
-                      <em>No hay préstamos registrados</em>
-                    </div>
-                  </div>
-                  <div>
-                    <span class="label-usuario" id="label-usuario2">corredor2:</span>
-                    <div id="historial-prestamos2" class="historial-container">
-                      <em>No hay préstamos registrados</em>
-                    </div>
-                  </div>
-                  <div>
-                    <span class="label-usuario" id="label-usuario3">corredor3:</span>
-                    <div id="historial-prestamos3" class="historial-container">
-                      <em>No hay préstamos registrados</em>
-                    </div>
-                  </div>
-                </div>
-                <div style="border-top: 1px solid #ddd; margin-top: 10px; padding-top: 10px;">
-                  <strong>💰 Ganancias de la Empresa:</strong><br>
-                  <div style="display: flex; justify-content: center; margin-top: 5px;">
-                    <div style="width: 300px;">
-                      <div id="historial-ganancias-empresa" class="historial-container" style="max-width: none; width: 100%;">
-                        <em>Sin ganancias registradas</em>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
         </tfoot>
       </table>
-    </div>
-  </div>
-
-  <div class="mini-calc">
-    <input id="expr" type="text" placeholder="operacion a calcular" autocomplete="off" />
-    <div class="row">
-      <button id="calcBtn">Calcular</button>
-      <button id="clearBtn" class="secondary">Borrar</button>
-    </div>
-    <div id="error" class="error"></div>
-    <div id="result" class="result">Resultado es: —</div>
-    <!-- Indicador de posición actual -->
-    <div id="indicador-posicion" class="indicador-posicion" style="display: none;">
-      <div style="font-size: 14px; font-weight: bold; color: #667eea; margin-bottom: 5px;">
-        Posición Actual
-      </div>
-    <div id="info-pelea" style="font-size: 13px; margin-bottom: 3px;">
-    Pelea: <span id="num-pelea-actual" style="font-weight: bold; color: #28a745;">-</span>
-    </div>
-      <div id="info-corredor" style="font-size: 13px;">
-          Corredor: <span id="nombre-corredor-actual" style="font-weight: bold; color: #0d6efd;">-</span>
-      </div>
     </div>
   </div>
 
