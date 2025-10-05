@@ -31,9 +31,9 @@ function agregarFilaHtml(numero) {
                 <td>
                   <select class="form-control ganador-select" data-fila="${numero}">
                     <option value="">Color ganador</option>
-                    <option value="verde" style="color: #28a745;">VERDE</option>
-                    <option value="rojo" style="color: #dc3545;">ROJO</option>
-                    <option value="tablas" style="color: #6c757d;">TABLAS</option>
+                    <option value="verde" style="color: #28a745;">🟢 VERDE</option>
+                    <option value="rojo" style="color: #dc3545;">🔴 ROJO</option>
+                    <option value="tablas" style="color: #6c757d;">⚪ TABLAS</option>
                   </select>
                 </td>
                 <td><strong>${numero}</strong></td>`;
@@ -42,7 +42,7 @@ function agregarFilaHtml(numero) {
     fila += `<td><input type="number" value="" class="form-control input-cell valor" data-col="${j}" data-fila="${numero}"></td>`;
   }
   
-  fila += `<td><button class="delete-btn" onclick="eliminarFila(${numero})" title="Eliminar fila">X</button></td></tr>`;
+ /*  fila += `<td><button class="delete-btn" onclick="eliminarFila(${numero})" title="Eliminar fila">X</button></td></tr>`; */
   body.innerHTML += fila;
 }
 
@@ -80,7 +80,7 @@ function agregarColumna() {
   newTh.innerHTML = `
     <div class="header-content">
       <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Talon">
-      <input type="text" value="${columnaCounter}" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="Numero de Talon">
+      <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="Numero de Talon">
       <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
       <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">Eliminar</button>
     </div>
@@ -488,6 +488,8 @@ function recalcularConGanancias() {
   if (totalConsolidadoEl) {
     totalConsolidadoEl.innerHTML = `<strong>TOTAL: ${totalFinal.toFixed(0)}</strong>`;
   }
+  
+  actualizarResumen(); // AGREGAR ESTA LÍNEA
 }
 
 function aplicarDistribucion(usuario, casa) {
@@ -664,7 +666,13 @@ function exportarExcel() {
   const filaTotalFinal = ['TOTAL FINAL CORREDOR', ''];
   for (let j = 1; j <= columnaCounter; j++) {
     const totalEl = document.getElementById("total-final-usuario" + j);
-    filaTotalFinal.push(totalEl ? Number(totalEl.innerText) : 0);
+    if (totalEl) {
+      const totalMontoEl = totalEl.querySelector('.total-monto');
+      const valor = totalMontoEl ? Number(totalMontoEl.innerText) : Number(totalEl.innerText);
+      filaTotalFinal.push(valor || 0);
+    } else {
+      filaTotalFinal.push(0);
+    }
   }
   datos.push(filaTotalFinal);
   
@@ -711,7 +719,32 @@ function sincronizarScrolls() {
   observer.observe(tabla, { childList: true, subtree: true });
 }
 
-// Modifica tu window.onload existente
+function actualizarResumen() {
+  // Calcular totales
+  const gananciasTotales = historialGananciasEmpresa.reduce((sum, g) => sum + g.cantidad, 0);
+  const descuentosTotales = historialesDescuentosEmpresa.reduce((sum, d) => sum + d.cantidad, 0);
+  
+  let gananciasCorredores = 0;
+  for (let j = 1; j <= columnaCounter; j++) {
+    const casaEl = document.getElementById("resultado-casa" + j);
+    if (casaEl) {
+      gananciasCorredores += Number(casaEl.innerText) || 0;
+    }
+  }
+  
+  const totalEmpresa = gananciasCorredores + gananciasTotales - descuentosTotales;
+  
+  // Actualizar elementos del resumen
+  document.getElementById('resumen-ganancias').innerText = '$' + gananciasTotales.toFixed(0);
+  document.getElementById('resumen-descuentos').innerText = '$' + descuentosTotales.toFixed(0);
+  document.getElementById('resumen-total-empresa').innerText = '$' + totalEmpresa.toFixed(0);
+  
+  document.getElementById('resumen-ganancias-corredores').innerText = '$' + gananciasCorredores.toFixed(0);
+  document.getElementById('resumen-ganancias-adicionales').innerText = '$' + gananciasTotales.toFixed(0);
+  document.getElementById('resumen-descuentos-detalle').innerText = '-$' + descuentosTotales.toFixed(0);
+  document.getElementById('resumen-balance-final').innerText = '$' + totalEmpresa.toFixed(0);
+}
+
 window.onload = function() {
   inicializarTabla();
   sincronizarScrolls();
