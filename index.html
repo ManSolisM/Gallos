@@ -705,7 +705,7 @@ tfoot td {
       <div class="row">
         <!-- Resumen de Ganancias -->
         <div class="col-md-4">
-          <div class="card-resumen" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #194f00 0%, #85e70d 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
             <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">GANANCIAS ADICIONALES</h5>
             <p id="resumen-ganancias" style="font-size: 32px; font-weight: 700; margin: 0;">$0</p>
             <small style="opacity: 0.8;">Ingresos extras de la empresa</small>
@@ -714,7 +714,7 @@ tfoot td {
         
         <!-- Resumen de Descuentos -->
         <div class="col-md-4">
-          <div class="card-resumen" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #a30c1e 0%, #f22000 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
             <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">DESCUENTOS EMPRESA</h5>
             <p id="resumen-descuentos" style="font-size: 32px; font-weight: 700; margin: 0;">$0</p>
             <small style="opacity: 0.8;">Gastos y descuentos aplicados</small>
@@ -723,7 +723,7 @@ tfoot td {
         
         <!-- Total Final Empresa -->
         <div class="col-md-4">
-          <div class="card-resumen" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #000860 0%, #0e11db 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
             <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">TOTAL EMPRESA</h5>
             <p id="resumen-total-empresa" style="font-size: 36px; font-weight: 700; margin: 0;">$0</p>
             <small style="opacity: 0.8;">Ganancia neta final</small>
@@ -756,16 +756,46 @@ tfoot td {
             </table>
           </div>
           <div class="col-md-6" style="display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px; width: 100%; color: white;">
-              <small style="opacity: 0.9; font-size: 12px;">BALANCE FINAL</small>
+            <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #27ff1f 0%, #06561c 100%); border-radius: 10px; width: 100%; color: white;">
+              <small style="opacity: 0.9; font-size: 12px;">TOTAL FINAL</small>
               <h3 id="resumen-balance-final" style="margin: 5px 0; font-weight: 700;">$0</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conceptos de Ganancias y Descuentos -->
+      <div class="row" style="margin-top: 20px;">
+        <!-- Conceptos de Ganancias -->
+        <div class="col-md-6">
+          <div style="padding: 20px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <h5 style="color: #155724; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #28a745; padding-bottom: 8px;">
+              💰 Conceptos de Ganancias
+            </h5>
+            <div id="resumen-conceptos-ganancias" style="max-height: 300px; overflow-y: auto;">
+              <p style="color: #6c757d; font-style: italic; text-align: center; margin: 20px 0;">
+                Sin ganancias registradas
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conceptos de Descuentos -->
+        <div class="col-md-6">
+          <div style="padding: 20px; background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <h5 style="color: #721c24; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #dc3545; padding-bottom: 8px;">
+              📉 Conceptos de Descuentos
+            </h5>
+            <div id="resumen-conceptos-descuentos" style="max-height: 300px; overflow-y: auto;">
+              <p style="color: #6c757d; font-style: italic; text-align: center; margin: 20px 0;">
+                Sin descuentos registrados
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-  </div> <!-- Cierra container-fluid -->
 
   <script src="public/js/main.js"></script>
 
