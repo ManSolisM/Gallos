@@ -42,7 +42,6 @@ function agregarFilaHtml(numero) {
     fila += `<td><input type="number" value="" class="form-control input-cell valor" data-col="${j}" data-fila="${numero}"></td>`;
   }
   
- /*  fila += `<td><button class="delete-btn" onclick="eliminarFila(${numero})" title="Eliminar fila">X</button></td></tr>`; */
   body.innerHTML += fila;
 }
 
@@ -79,8 +78,8 @@ function agregarColumna() {
   newTh.id = `col-${columnaCounter}`;
   newTh.innerHTML = `
     <div class="header-content">
-      <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Talon">
-      <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="Numero de Talon">
+      <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Nombre Talon">
+      <input type="text" value="${columnaCounter}" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="ID">
       <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
       <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">Eliminar</button>
     </div>
@@ -107,7 +106,7 @@ function agregarColumna() {
   prestamoCelda.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
       <input type="number" id="prestamo-usuario${columnaCounter}" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-      <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">Presiona para Agregar el Prestamo o Descuento</button>
+      <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">+ Descuento</button>
       <div id="historial-prestamos${columnaCounter}" class="historial-container">
         <em>Sin descuentos</em>
       </div>
@@ -281,6 +280,13 @@ function actualizarHistorialPrestamos(usuario) {
   const historialDiv = document.getElementById(`historial-prestamos${usuario}`);
   const prestamos = historialesPrestamos[usuario - 1];
   
+  // Actualizar el total de descuentos
+  const totalDescuentoEl = document.getElementById(`total-descuento-usuario${usuario}`);
+  const totalDescuentos = prestamos.reduce((sum, p) => sum + p.cantidad, 0);
+  if (totalDescuentoEl) {
+    totalDescuentoEl.textContent = `Total: ${totalDescuentos}`;
+  }
+  
   if (prestamos.length === 0) {
     historialDiv.innerHTML = '<em>Sin descuentos</em>';
   } else {
@@ -289,9 +295,8 @@ function actualizarHistorialPrestamos(usuario) {
       html += `
         <div style="border-bottom: 1px solid #eee; padding: 2px 0; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <strong>$${prestamo.cantidad}</strong><br>
+            <strong>${prestamo.cantidad}</strong><br>
             <small>${prestamo.descripcion}</small><br>
-            <tiny style="color: #666;">${prestamo.fecha}</tiny>
           </div>
           <button onclick="eliminarPrestamo(${usuario}, ${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar descuento">X</button>
         </div>
@@ -386,7 +391,6 @@ function actualizarHistorialDescuentosEmpresa() {
           <div>
             <strong>$${descuento.cantidad}</strong><br>
             <small>${descuento.descripcion}</small><br>
-            <tiny style="color: #666;">${descuento.fecha}</tiny>
           </div>
           <button onclick="eliminarDescuentoEmpresa(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar descuento">X</button>
         </div>
@@ -446,7 +450,6 @@ function actualizarHistorialGananciasEmpresa() {
           <div>
             <strong>$${ganancia.cantidad}</strong><br>
             <small>${ganancia.descripcion}</small><br>
-            <tiny style="color: #666;">${ganancia.fecha}</tiny>
           </div>
           <button onclick="eliminarGananciaEmpresa(${index})" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 1px 4px; font-size: 9px; cursor: pointer;" title="Eliminar ganancia">X</button>
         </div>
@@ -489,7 +492,86 @@ function recalcularConGanancias() {
     totalConsolidadoEl.innerHTML = `<strong>TOTAL: ${totalFinal.toFixed(0)}</strong>`;
   }
   
-  actualizarResumen(); // AGREGAR ESTA LÍNEA
+  actualizarResumenEmpresa();
+}
+
+function actualizarResumenEmpresa() {
+  const gananciasTotales = historialGananciasEmpresa.reduce((sum, ganancia) => sum + ganancia.cantidad, 0);
+  const descuentosTotales = historialesDescuentosEmpresa.reduce((sum, desc) => sum + desc.cantidad, 0);
+  
+  let totalEmpresaCorredores = 0;
+  for (let j = 1; j <= columnaCounter; j++) {
+    const resultadoCasaEl = document.getElementById("resultado-casa" + j);
+    if (resultadoCasaEl) {
+      totalEmpresaCorredores += Number(resultadoCasaEl.innerText) || 0;
+    }
+  }
+  
+  const totalFinal = totalEmpresaCorredores + gananciasTotales - descuentosTotales;
+  
+  // Actualizar valores en el resumen
+  const resumenGanancias = document.getElementById("resumen-ganancias");
+  if (resumenGanancias) resumenGanancias.textContent = `$${gananciasTotales}`;
+  
+  const resumenDescuentos = document.getElementById("resumen-descuentos");
+  if (resumenDescuentos) resumenDescuentos.textContent = `$${descuentosTotales}`;
+  
+  const resumenTotalEmpresa = document.getElementById("resumen-total-empresa");
+  if (resumenTotalEmpresa) resumenTotalEmpresa.textContent = `$${totalFinal.toFixed(0)}`;
+  
+  const resumenGananciasCorredores = document.getElementById("resumen-ganancias-corredores");
+  if (resumenGananciasCorredores) resumenGananciasCorredores.textContent = `$${totalEmpresaCorredores.toFixed(0)}`;
+  
+  const resumenGananciasAdicionales = document.getElementById("resumen-ganancias-adicionales");
+  if (resumenGananciasAdicionales) resumenGananciasAdicionales.textContent = `$${gananciasTotales}`;
+  
+  const resumenDescuentosDetalle = document.getElementById("resumen-descuentos-detalle");
+  if (resumenDescuentosDetalle) resumenDescuentosDetalle.textContent = `-$${descuentosTotales}`;
+  
+  const resumenBalanceFinal = document.getElementById("resumen-balance-final");
+  if (resumenBalanceFinal) resumenBalanceFinal.textContent = `$${totalFinal.toFixed(0)}`;
+  
+  // Actualizar conceptos de ganancias
+  const conceptosGananciasDiv = document.getElementById("resumen-conceptos-ganancias");
+  if (conceptosGananciasDiv) {
+    if (historialGananciasEmpresa.length === 0) {
+      conceptosGananciasDiv.innerHTML = '<p style="color: #6c757d; font-style: italic; text-align: center; margin: 20px 0;">Sin ganancias registradas</p>';
+    } else {
+      let html = '';
+      historialGananciasEmpresa.forEach((ganancia, index) => {
+        html += `
+          <div style="border-bottom: 1px solid #c3e6cb; padding: 10px 0; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #155724; font-size: 18px;">$${ganancia.cantidad}</span>
+            </div>
+            <p style="margin: 0; color: #495057; font-size: 13px;">${ganancia.descripcion}</p>
+          </div>
+        `;
+      });
+      conceptosGananciasDiv.innerHTML = html;
+    }
+  }
+  
+  // Actualizar conceptos de descuentos
+  const conceptosDescuentosDiv = document.getElementById("resumen-conceptos-descuentos");
+  if (conceptosDescuentosDiv) {
+    if (historialesDescuentosEmpresa.length === 0) {
+      conceptosDescuentosDiv.innerHTML = '<p style="color: #6c757d; font-style: italic; text-align: center; margin: 20px 0;">Sin descuentos registrados</p>';
+    } else {
+      let html = '';
+      historialesDescuentosEmpresa.forEach((descuento, index) => {
+        html += `
+          <div style="border-bottom: 1px solid #f5c6cb; padding: 10px 0; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #721c24; font-size: 18px;">$${descuento.cantidad}</span>
+            </div>
+            <p style="margin: 0; color: #495057; font-size: 13px;">${descuento.descripcion}</p>
+          </div>
+        `;
+      });
+      conceptosDescuentosDiv.innerHTML = html;
+    }
+  }
 }
 
 function aplicarDistribucion(usuario, casa) {
@@ -648,11 +730,43 @@ function exportarExcel() {
   }
   datos.push(filaPrestamos);
   
+  // Agregar detalle de descuentos por corredor
+  for (let j = 1; j <= columnaCounter; j++) {
+    if (historialesPrestamos[j - 1] && historialesPrestamos[j - 1].length > 0) {
+      datos.push([`Detalle ${columnasData[j-1]?.nombreUsuario || 'corredor'+j}`, '']);
+      historialesPrestamos[j - 1].forEach(prestamo => {
+        datos.push(['', `${prestamo.cantidad} - ${prestamo.descripcion} (${prestamo.fecha})`]);
+      });
+    }
+  }
+  
+  datos.push([]);
+  
   const descuentoEmpresaTotal = historialesDescuentosEmpresa.reduce((sum, d) => sum + d.cantidad, 0);
   datos.push(['Descuentos de la Empresa', descuentoEmpresaTotal]);
   
+  // Agregar detalle de descuentos de empresa
+  if (historialesDescuentosEmpresa.length > 0) {
+    datos.push(['Detalle Descuentos Empresa', '']);
+    historialesDescuentosEmpresa.forEach(descuento => {
+      datos.push(['', `${descuento.cantidad} - ${descuento.descripcion} (${descuento.fecha})`]);
+    });
+  }
+  
+  datos.push([]);
+  
   const gananciaEmpresaTotal = historialGananciasEmpresa.reduce((sum, g) => sum + g.cantidad, 0);
   datos.push(['Ganancias Adicionales Empresa', gananciaEmpresaTotal]);
+  
+  // Agregar detalle de ganancias de empresa
+  if (historialGananciasEmpresa.length > 0) {
+    datos.push(['Detalle Ganancias Empresa', '']);
+    historialGananciasEmpresa.forEach(ganancia => {
+      datos.push(['', `${ganancia.cantidad} - ${ganancia.descripcion} (${ganancia.fecha})`]);
+    });
+  }
+  
+  datos.push([]);
   
   const filaTotalEmpresa = ['TOTAL GANANCIAS EMPRESA', ''];
   for (let j = 1; j <= columnaCounter; j++) {
@@ -717,32 +831,6 @@ function sincronizarScrolls() {
   
   const observer = new MutationObserver(ajustarAncho);
   observer.observe(tabla, { childList: true, subtree: true });
-}
-
-function actualizarResumen() {
-  // Calcular totales
-  const gananciasTotales = historialGananciasEmpresa.reduce((sum, g) => sum + g.cantidad, 0);
-  const descuentosTotales = historialesDescuentosEmpresa.reduce((sum, d) => sum + d.cantidad, 0);
-  
-  let gananciasCorredores = 0;
-  for (let j = 1; j <= columnaCounter; j++) {
-    const casaEl = document.getElementById("resultado-casa" + j);
-    if (casaEl) {
-      gananciasCorredores += Number(casaEl.innerText) || 0;
-    }
-  }
-  
-  const totalEmpresa = gananciasCorredores + gananciasTotales - descuentosTotales;
-  
-  // Actualizar elementos del resumen
-  document.getElementById('resumen-ganancias').innerText = '$' + gananciasTotales.toFixed(0);
-  document.getElementById('resumen-descuentos').innerText = '$' + descuentosTotales.toFixed(0);
-  document.getElementById('resumen-total-empresa').innerText = '$' + totalEmpresa.toFixed(0);
-  
-  document.getElementById('resumen-ganancias-corredores').innerText = '$' + gananciasCorredores.toFixed(0);
-  document.getElementById('resumen-ganancias-adicionales').innerText = '$' + gananciasTotales.toFixed(0);
-  document.getElementById('resumen-descuentos-detalle').innerText = '-$' + descuentosTotales.toFixed(0);
-  document.getElementById('resumen-balance-final').innerText = '$' + totalEmpresa.toFixed(0);
 }
 
 window.onload = function() {
