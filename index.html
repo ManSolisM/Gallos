@@ -542,30 +542,30 @@ tfoot td {
             <th id="col-1">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="1" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button>
+                <!-- <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
             <th id="col-2">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="2" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button>
+                <!-- <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
             <th id="col-3">
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talon">
-                <input type="text" value="3" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="Numero de Talon">
+                <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="Numero de Talon">
                 <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
-                <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button>
+                <!-- <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
             <th>
               <div class="header-content">
-                <strong>Eliminar</strong>
+                <strong></strong>
               </div>
             </th>
           </tr>
@@ -693,6 +693,79 @@ tfoot td {
       </table>
     </div>
   </div>
+
+  </div> <!-- Cierra tabla-container -->
+
+    <!-- SECCIÓN DE RESUMEN -->
+    <div class="resumen-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+      <h4 style="text-align: center; color: #2c3e50; font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
+        📊 Resumen General de la Empresa
+      </h4>
+      
+      <div class="row">
+        <!-- Resumen de Ganancias -->
+        <div class="col-md-4">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">GANANCIAS ADICIONALES</h5>
+            <p id="resumen-ganancias" style="font-size: 32px; font-weight: 700; margin: 0;">$0</p>
+            <small style="opacity: 0.8;">Ingresos extras de la empresa</small>
+          </div>
+        </div>
+        
+        <!-- Resumen de Descuentos -->
+        <div class="col-md-4">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">DESCUENTOS EMPRESA</h5>
+            <p id="resumen-descuentos" style="font-size: 32px; font-weight: 700; margin: 0;">$0</p>
+            <small style="opacity: 0.8;">Gastos y descuentos aplicados</small>
+          </div>
+        </div>
+        
+        <!-- Total Final Empresa -->
+        <div class="col-md-4">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">TOTAL EMPRESA</h5>
+            <p id="resumen-total-empresa" style="font-size: 36px; font-weight: 700; margin: 0;">$0</p>
+            <small style="opacity: 0.8;">Ganancia neta final</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Desglose detallado -->
+      <div style="margin-top: 25px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <h5 style="color: #2c3e50; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+          Desglose Detallado
+        </h5>
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table table-sm" style="margin: 0;">
+              <tbody>
+                <tr>
+                  <td style="font-weight: 600; color: #495057;">Ganancias de Corredores:</td>
+                  <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; color: #495057;">Ganancias :</td>
+                  <td id="resumen-ganancias-adicionales" style="text-align: right; color: #28a745; font-weight: 600;">$0</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; color: #495057;">Descuentos de Empresa :</td>
+                  <td id="resumen-descuentos-detalle" style="text-align: right; color: #dc3545; font-weight: 600;">-$0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-6" style="display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px; width: 100%; color: white;">
+              <small style="opacity: 0.9; font-size: 12px;">BALANCE FINAL</small>
+              <h3 id="resumen-balance-final" style="margin: 5px 0; font-weight: 700;">$0</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div> <!-- Cierra container-fluid -->
 
   <script src="public/js/main.js"></script>
 
