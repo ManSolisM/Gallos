@@ -8,6 +8,7 @@ let columnasData = [
 let historialesPrestamos = [[], [], []];
 let historialesDescuentosEmpresa = [];
 let historialGananciasEmpresa = [];
+let descuentoFantasma = 0;
 
 function inicializarTabla() {
   const body = document.getElementById("tabla-body");
@@ -485,13 +486,12 @@ function recalcularConGanancias() {
     }
   }
   
-  const totalFinal = totalEmpresaConsolidado + gananciasTotales - descuentosTotales;
+   const totalFinal = totalEmpresaConsolidado + gananciasTotales - descuentosTotales - descuentoFantasma;
   
   const totalConsolidadoEl = document.getElementById("total-empresa-consolidado");
   if (totalConsolidadoEl) {
     totalConsolidadoEl.innerHTML = `<strong>TOTAL: ${totalFinal.toFixed(0)}</strong>`;
   }
-  
   actualizarResumenEmpresa();
 }
 
@@ -507,26 +507,30 @@ function actualizarResumenEmpresa() {
     }
   }
   
-  const totalFinal = totalEmpresaCorredores + gananciasTotales - descuentosTotales;
+  // Aquí se incluye el descuento fantasma en el cálculo del total final
+  const totalFinal = totalEmpresaCorredores + gananciasTotales - descuentosTotales - descuentoFantasma;
   
-  // Actualizar valores en el resumen
+  // Actualizar valores en el resumen superior (tarjetas)
   const resumenGanancias = document.getElementById("resumen-ganancias");
   if (resumenGanancias) resumenGanancias.textContent = `$${gananciasTotales}`;
   
+  // Aquí se suma el descuento fantasma al total de descuentos mostrado
   const resumenDescuentos = document.getElementById("resumen-descuentos");
-  if (resumenDescuentos) resumenDescuentos.textContent = `$${descuentosTotales}`;
+  if (resumenDescuentos) resumenDescuentos.textContent = `$${(descuentosTotales + descuentoFantasma).toFixed(0)}`;
   
   const resumenTotalEmpresa = document.getElementById("resumen-total-empresa");
   if (resumenTotalEmpresa) resumenTotalEmpresa.textContent = `$${totalFinal.toFixed(0)}`;
   
+  // Desglose detallado
   const resumenGananciasCorredores = document.getElementById("resumen-ganancias-corredores");
   if (resumenGananciasCorredores) resumenGananciasCorredores.textContent = `$${totalEmpresaCorredores.toFixed(0)}`;
   
   const resumenGananciasAdicionales = document.getElementById("resumen-ganancias-adicionales");
   if (resumenGananciasAdicionales) resumenGananciasAdicionales.textContent = `$${gananciasTotales}`;
   
+  // Aquí también se suma el descuento fantasma
   const resumenDescuentosDetalle = document.getElementById("resumen-descuentos-detalle");
-  if (resumenDescuentosDetalle) resumenDescuentosDetalle.textContent = `-$${descuentosTotales}`;
+  if (resumenDescuentosDetalle) resumenDescuentosDetalle.textContent = `-$${(descuentosTotales + descuentoFantasma).toFixed(0)}`;
   
   const resumenBalanceFinal = document.getElementById("resumen-balance-final");
   if (resumenBalanceFinal) resumenBalanceFinal.textContent = `$${totalFinal.toFixed(0)}`;
@@ -552,7 +556,7 @@ function actualizarResumenEmpresa() {
     }
   }
   
-  // Actualizar conceptos de descuentos
+  // Actualizar conceptos de descuentos (SIN mostrar el descuento fantasma)
   const conceptosDescuentosDiv = document.getElementById("resumen-conceptos-descuentos");
   if (conceptosDescuentosDiv) {
     if (historialesDescuentosEmpresa.length === 0) {
@@ -653,6 +657,21 @@ function limpiarBusqueda() {
   document.querySelectorAll("#tabla-body tr").forEach(fila => {
     fila.classList.remove("fila-encontrada", "fila-oculta");
   });
+}
+
+function aplicarDescuentoFantasma() {
+  const cantidad = prompt('Ingresa el monto del descuento fantasma (no quedará registrado):');
+  
+  if (cantidad !== null && cantidad !== '') {
+    const monto = Number(cantidad);
+    if (!isNaN(monto) && monto >= 0) {
+      descuentoFantasma = monto;
+      recalcularConGanancias();
+      alert(`Descuento fantasma de $${monto} aplicado correctamente`);
+    } else {
+      alert('Por favor ingresa un número válido');
+    }
+  }
 }
 
 function exportarExcel() {
