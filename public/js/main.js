@@ -79,8 +79,8 @@ function agregarColumna() {
   newTh.id = `col-${columnaCounter}`;
   newTh.innerHTML = `
     <div class="header-content">
-      <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Nombre Talon">
-      <input type="text" value="${columnaCounter}" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="ID">
+      <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Talon">
+      <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="Numero Talon">
       <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
       <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">Eliminar</button>
     </div>
@@ -107,7 +107,7 @@ function agregarColumna() {
   prestamoCelda.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 2px; align-items: center;">
       <input type="number" id="prestamo-usuario${columnaCounter}" value="" class="form-control prestamo-input" onchange="recalcularConPrestamos()" placeholder="0">
-      <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">+ Descuento</button>
+      <button class="btn btn-sm btn-outline-primary prestamo-btn" onclick="agregarPrestamo(${columnaCounter})">Presiona para Agregar el Prestamo o Descuento</button>
       <div id="historial-prestamos${columnaCounter}" class="historial-container">
         <em>Sin descuentos</em>
       </div>
