@@ -530,7 +530,7 @@ function actualizarResumenEmpresa() {
   
   // Aquí también se suma el descuento fantasma
   const resumenDescuentosDetalle = document.getElementById("resumen-descuentos-detalle");
-  if (resumenDescuentosDetalle) resumenDescuentosDetalle.textContent = `-$${(descuentosTotales + descuentoFantasma).toFixed(0)}`;
+  if (resumenDescuentosDetalle) resumenDescuentosDetalle.textContent = `-$${(descuentosTotales ).toFixed(0)}`;
   
   const resumenBalanceFinal = document.getElementById("resumen-balance-final");
   if (resumenBalanceFinal) resumenBalanceFinal.textContent = `$${totalFinal.toFixed(0)}`;
