@@ -543,7 +543,7 @@ tfoot td {
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(1, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(1, this.value)" placeholder="Numero de Talon">
-                <input type="text" value="corredor1" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Corredor">
+                <input type="text" value="" class="nombre-usuario" onchange="actualizarNombreUsuario(1, this.value)" placeholder="Nombre_Corredor">
                 <!-- <button class="delete-col-btn" onclick="eliminarColumna(1)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
@@ -551,7 +551,7 @@ tfoot td {
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(2, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(2, this.value)" placeholder="Numero de Talon">
-                <input type="text" value="corredor2" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Corredor">
+                <input type="text" value="" class="nombre-usuario" onchange="actualizarNombreUsuario(2, this.value)" placeholder="Nombre_Corredor">
                 <!-- <button class="delete-col-btn" onclick="eliminarColumna(2)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
@@ -559,7 +559,7 @@ tfoot td {
               <div class="header-content">
                 <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(3, this.value)" placeholder="Nombre Talon">
                 <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(3, this.value)" placeholder="Numero de Talon">
-                <input type="text" value="corredor3" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Corredor">
+                <input type="text" value="" class="nombre-usuario" onchange="actualizarNombreUsuario(3, this.value)" placeholder="Nombre_Corredor">
                 <!-- <button class="delete-col-btn" onclick="eliminarColumna(3)" title="Eliminar columna">Eliminar</button> -->
               </div>
             </th>
@@ -702,13 +702,18 @@ tfoot td {
 
     <!-- SECCIÓN DE RESUMEN -->
     <div class="resumen-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
-      <h4 style="text-align: center; color: #2c3e50; font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
+      <h4 style="text-align: center; color: #23394e; font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
         📊 Resumen General de la Empresa
       </h4>
-      
-   
-        
-      
+      <div class="col-md-4">
+          <div class="card-resumen" style="background: linear-gradient(135deg, #000860 0%, #0e11db 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
+            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">TOTAL CORRETAJE</h5>
+            <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td>
+            <small style="opacity: 0.8;">SUMA DE TODOS LOS CORREDORES</small>
+          </div>
+        </div>
+      </div>
+    
       <!-- Desglose detallado -->
       <div style="margin-top: 25px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <h5 style="color: #2c3e50; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
