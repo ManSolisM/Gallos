@@ -668,7 +668,7 @@ tfoot td {
             <td id="total-empresa-individual1" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
             <td id="total-empresa-individual2" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
             <td id="total-empresa-individual3" style="font-size: 14px; color: #0066cc;"><strong>0</strong></td>
-            <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td>
+            <!-- <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td> -->
           </tr>
           <tr style="background-color: #f0f8f0 !important; border-top: 2px solid #28a745;">
             <td><strong>TOTAL</strong></td>
@@ -702,18 +702,22 @@ tfoot td {
 
     <!-- SECCIÓN DE RESUMEN -->
     <div class="resumen-section" style="margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
-      <h4 style="text-align: center; color: #23394e; font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
+      <h4 style="text-align: center; color: #2c3e50; font-weight: 700; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1px;">
         📊 Resumen General de la Empresa
       </h4>
-      <div class="col-md-4">
+      
+
+      <!-- ganacias por corredores -->
+        <div class="col-md-4">
           <div class="card-resumen" style="background: linear-gradient(135deg, #000860 0%, #0e11db 100%); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; color: white;">
-            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">TOTAL CORRETAJE</h5>
-            <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td>
-            <small style="opacity: 0.8;">SUMA DE TODOS LOS CORREDORES</small>
+            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 10px; opacity: 0.9;">TOTAL PARA EMPRESA</h5>
+            <p id="resumen-ganancias-corredores" style="font-size: 36px; font-weight: 700; margin: 0;">$0</p>
+            <small style="opacity: 0.8;">Ganancias por Corredores</small>
           </div>
         </div>
       </div>
-    
+
+
       <!-- Desglose detallado -->
       <div style="margin-top: 25px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
         <h5 style="color: #2c3e50; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
@@ -723,7 +727,10 @@ tfoot td {
           <div class="col-md-6">
             <table class="table table-sm" style="margin: 0;">
               <tbody>
-                
+                <!-- <tr>
+                  <td style="font-weight: 600; color: #495057;">Ganancias de Corredores:</td>
+                  <td id="resumen-ganancias-corredores" style="text-align: right; color: #0066cc; font-weight: 600;">$0</td>
+                </tr> -->
                 <tr>
                   <td style="font-weight: 600; color: #495057;">Ganancias y Otros Ingresos:</td>
                   <td id="resumen-ganancias-adicionales" style="text-align: right; color: #28a745; font-weight: 600;">$0</td>
