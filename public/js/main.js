@@ -81,7 +81,7 @@ function agregarColumna() {
     <div class="header-content">
       <input type="text" value="Talon" class="numero-talon" onchange="actualizarNumeroTalon(${columnaCounter}, this.value)" placeholder="Talon">
       <input type="text" value="" class="numero-talon" onchange="actualizarIdTalon(${columnaCounter}, this.value)" placeholder="Numero Talon">
-      <input type="text" value="corredor${columnaCounter}" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Corredor">
+      <input type="text" value="" class="nombre-usuario" onchange="actualizarNombreUsuario(${columnaCounter}, this.value)" placeholder="Nombre_Corredor">
       <button class="delete-col-btn" onclick="eliminarColumna(${columnaCounter})" title="Eliminar columna">Eliminar</button>
     </div>
   `;
@@ -523,7 +523,7 @@ function actualizarResumenEmpresa() {
   
   // Desglose detallado
   const resumenGananciasCorredores = document.getElementById("resumen-ganancias-corredores");
-  if (resumenGananciasCorredores) resumenGananciasCorredores.textContent = `$${totalEmpresaCorredores.toFixed(0)}`;
+  if (resumenGananciasCorredores) resumenGananciasCorredores.textContent = `$${(totalEmpresaCorredores - descuentoFantasma).toFixed(0)}`;
   
   const resumenGananciasAdicionales = document.getElementById("resumen-ganancias-adicionales");
   if (resumenGananciasAdicionales) resumenGananciasAdicionales.textContent = `$${gananciasTotales}`;
@@ -660,14 +660,27 @@ function limpiarBusqueda() {
 }
 
 function aplicarDescuentoFantasma() {
-  const cantidad = prompt('Ingresa el monto del descuento fantasma (no quedará registrado):');
+  // Mostrar el valor actual si existe
+  const mensajeActual = descuentoFantasma > 0 
+    ? `\nDescuento actual: $${descuentoFantasma}` 
+    : '';
+  
+  const cantidad = prompt(
+    `Ingresa el monto del descuento fantasma (no quedará registrado):${mensajeActual}\n\n` +
+    'Ingresa "0" para eliminar el descuento'
+  );
   
   if (cantidad !== null && cantidad !== '') {
     const monto = Number(cantidad);
     if (!isNaN(monto) && monto >= 0) {
       descuentoFantasma = monto;
       recalcularConGanancias();
-      alert(`Descuento fantasma de $${monto} aplicado correctamente`);
+      
+      if (monto === 0) {
+        alert('Descuento fantasma eliminado');
+      } else {
+        alert(`Descuento fantasma de $${monto} aplicado correctamente`);
+      }
     } else {
       alert('Por favor ingresa un número válido');
     }
